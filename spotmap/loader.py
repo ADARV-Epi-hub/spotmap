@@ -129,7 +129,19 @@ def detect_outcome(df: pd.DataFrame, outcome_col: str = None, case_value: str = 
     if case_value is None:
         raise ColumnNotFoundError(f"No values found in outcome column '{outcome_col}'.")
 
-    return outcome_col, str(case_value)
+    # Normalize case_value to lowercase so comparison is case-insensitive
+    return outcome_col, str(case_value).strip().lower()
+
+
+def _read_data_file(path: str) -> pd.DataFrame:
+    """Read a data file — CSV, Excel (.xlsx/.xls), or TSV — into a DataFrame."""
+    lower = str(path).lower()
+    if lower.endswith((".xlsx", ".xls", ".xlsm", ".xlsb", ".ods")):
+        return pd.read_excel(path)
+    if lower.endswith(".tsv") or lower.endswith(".txt"):
+        return pd.read_csv(path, sep="\t")
+    # Default: CSV
+    return pd.read_csv(path)
 
 
 def load_csv(
@@ -141,13 +153,15 @@ def load_csv(
 ) -> tuple:
     """Load and prepare the points data from a file path or DataFrame.
 
+    Accepts CSV, Excel (.xlsx/.xls), or TSV files when *data* is a path.
+
     Returns:
         (df, lat_col, long_col, outcome_col, case_value)
     """
     if isinstance(data, pd.DataFrame):
         df = data.copy()
     else:
-        df = pd.read_csv(data)
+        df = _read_data_file(data)
 
     # Strip whitespace from column names
     df.columns = df.columns.str.strip()

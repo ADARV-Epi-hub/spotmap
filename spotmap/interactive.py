@@ -113,32 +113,47 @@ def _guess(columns: list, candidates: list) -> int:
 # STEP HANDLERS — each catches its own errors and retries
 # =========================================================
 
+_SUPPORTED_EXT = (".csv", ".xlsx", ".xls", ".xlsm", ".xlsb", ".ods", ".tsv", ".txt")
+
+
 def _step_load_csv() -> pd.DataFrame:
-    """Step 1 — load the CSV, with retry on file errors."""
+    """Step 1 — load the data file (CSV / Excel / TSV), with retry on errors."""
     while True:
-        path = _ask("\n📁 Enter the path to your CSV file")
+        path = _ask("\n📁 Enter the path to your data file (CSV or Excel)")
         if not os.path.exists(path):
             _err(f"File not found: {path}")
             _info("Tip: paste the full path, or drag the file into the terminal.")
             continue
-        if not path.lower().endswith(".csv"):
-            _warn("That doesn't look like a .csv file — trying anyway.")
+        lower = path.lower()
+        if not lower.endswith(_SUPPORTED_EXT):
+            _warn(f"Unrecognised file type. Supported: {', '.join(_SUPPORTED_EXT)}")
+            _info("Trying anyway as CSV.")
         try:
-            df = pd.read_csv(path)
+            if lower.endswith((".xlsx", ".xls", ".xlsm", ".xlsb", ".ods")):
+                df = pd.read_excel(path)
+                _ok("Detected Excel file.")
+            elif lower.endswith((".tsv", ".txt")):
+                df = pd.read_csv(path, sep="\t")
+                _ok("Detected TSV file.")
+            else:
+                df = pd.read_csv(path)
             df.columns = df.columns.str.strip()
             if len(df) == 0:
                 _err("The file is empty. Try a different file.")
                 continue
             _ok(f"Loaded {len(df)} rows and {len(df.columns)} columns")
             return df
+        except ImportError as e:
+            _err(f"Missing reader for this file type: {e}")
+            _info("For Excel files, run:  pip install openpyxl")
         except pd.errors.EmptyDataError:
-            _err("The CSV file is empty.")
+            _err("The file is empty.")
         except pd.errors.ParserError as e:
-            _err(f"Could not parse CSV: {e}")
+            _err(f"Could not parse file: {e}")
         except PermissionError:
-            _err("Permission denied reading the file.")
+            _err("Permission denied — close the file in Excel and retry.")
         except UnicodeDecodeError:
-            _err("Encoding error. Try saving the CSV as UTF-8 and retry.")
+            _err("Encoding error. Try saving the file as UTF-8 and retry.")
         except Exception as e:  # noqa: BLE001
             _err(f"Could not read file: {e}")
 

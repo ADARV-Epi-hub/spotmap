@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spotmap"
-version = "0.1.3"
+version = "0.1.4"
 description = "Interactive epidemiological spot maps for India"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -27,6 +27,7 @@ dependencies = [
   "numpy>=1.24",
   "pandas>=2.0",
   "shapely>=2.0",
+  "openpyxl>=3.1",
 ]
 
 [project.urls]
