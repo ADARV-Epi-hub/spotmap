@@ -278,20 +278,10 @@ def _step_pick_case_value(df: pd.DataFrame, outcome_col: str) -> str:
     n_cases = counts[case_value]
     n_controls = counts.sum() - n_cases
     print()
-    _info(f"This will plot:")
-    print(f"   • {n_cases} rows as CASES   (where {outcome_col} = '{case_value}')")
-    print(f"   • {n_controls} rows as CONTROLS (all other values)")
+    _info(f"Plotting {n_cases} cases and {n_controls} controls.")
 
     if n_cases == 0:
         _err("No case rows — cannot build map.")
-        return _step_pick_case_value(df, outcome_col)
-    if n_controls == 0:
-        _info("No control rows. The map will show only cases.")
-
-    # Confirm
-    confirm = _ask("\nIs this correct? (y/n)", default="y")
-    if not confirm.lower().startswith("y"):
-        print("Let's pick again.")
         return _step_pick_case_value(df, outcome_col)
 
     return case_value
@@ -377,33 +367,25 @@ def _step_build_map(df, lat_col, long_col, outcome_col, case_value, output_path)
 # MAIN ENTRY POINT
 # =========================================================
 
-def _step_summary(df, lat_col, long_col, outcome_col, case_value, output_path):
-    """Show a summary screen before building."""
-    print()
-    _line("-")
-    print("📋 Summary — please review:")
-    _line("-")
-    print(f"   File rows       : {len(df)}")
-    print(f"   Latitude column : {lat_col}")
-    print(f"   Longitude column: {long_col}")
-    print(f"   Outcome column  : {outcome_col}")
-    print(f"   Case value      : {case_value}")
-    print(f"   Output path     : {output_path}")
-    _line("-")
-    ok = _ask("\nProceed and build the map? (y/n)", default="y")
-    return ok.lower().startswith("y")
+_DEFAULT_OUTPUT = "spotmap.html"
 
 
-def run_interactive() -> None:
+def run_interactive(output_path: str = _DEFAULT_OUTPUT) -> None:
     """Run an interactive prompt-based wizard to build a SpotMap.
 
     Designed for users who don't want to write Python code.  Each step
     catches errors and lets the user retry instead of crashing.
+
+    Parameters
+    ----------
+    output_path:
+        Where to save the HTML map.  Defaults to ``spotmap.html`` in the
+        current directory.
     """
     _header("SpotMap — Interactive Setup")
     print("Press Enter to accept the default shown in [brackets].\n")
 
-    # Step 1 — load CSV
+    # Step 1 — load file
     df = _step_load_csv()
 
     # Step 2 — pick columns
@@ -412,17 +394,7 @@ def run_interactive() -> None:
     # Step 3 — pick case value
     case_value = _step_pick_case_value(df, outcome_col)
 
-    # Step 4 — output path
-    output_path = _step_output_path()
-
-    # Step 5 — show summary, allow back-out
-    if not _step_summary(df, lat_col, long_col, outcome_col, case_value, output_path):
-        print("\nLet's redo the setup:")
-        lat_col, long_col, outcome_col = _step_pick_columns(df)
-        case_value = _step_pick_case_value(df, outcome_col)
-        output_path = _step_output_path()
-
-    # Step 6 — build with retry
+    # Step 4 — build immediately (no confirmation needed)
     while True:
         success = _step_build_map(
             df, lat_col, long_col, outcome_col, case_value, output_path
@@ -439,5 +411,5 @@ def run_interactive() -> None:
         case_value = _step_pick_case_value(df, outcome_col)
 
     _line()
-    print(f"\n🗺️  Open this file in your browser:\n   {output_path}\n")
+    print(f"\n🗺️  Open this file in your browser:\n   {os.path.abspath(output_path)}\n")
     _line()
