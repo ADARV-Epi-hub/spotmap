@@ -67,11 +67,20 @@ def _ask(prompt: str, default: str = None, allow_blank: bool = False) -> str:
         _err("Please type a value (cannot be empty).")
 
 
-def _ask_choice(prompt: str, options: list, default_index: int = 0) -> str:
-    """Ask user to pick one of the listed options by number or by typing it."""
+def _ask_choice(prompt: str, options: list, default_index: int = 0, previews: list = None) -> str:
+    """Ask user to pick one of the listed options by number or by typing it.
+
+    If *previews* is given (same length as *options*), shows sample values next
+    to each option to help the user choose.
+    """
+    # Compute column widths for alignment
+    col_w = max(len(str(o)) for o in options) + 2
     for i, opt in enumerate(options, 1):
         marker = " (default)" if i - 1 == default_index else ""
-        print(f"  {i}. {opt}{marker}")
+        if previews:
+            print(f"  {i}. {str(opt).ljust(col_w)} →  {previews[i-1]}{marker}")
+        else:
+            print(f"  {i}. {opt}{marker}")
     while True:
         raw = _ask(prompt, default=str(default_index + 1))
         # By number
@@ -158,18 +167,39 @@ def _step_load_csv() -> pd.DataFrame:
             _err(f"Could not read file: {e}")
 
 
+def _build_previews(df: pd.DataFrame, max_samples: int = 3, max_chars: int = 40) -> list:
+    """Build a short string showing sample values for each column."""
+    previews = []
+    for c in df.columns:
+        # Take up to N unique non-null values
+        samples = (
+            df[c]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .unique()
+            .tolist()[:max_samples]
+        )
+        joined = ", ".join(samples) if samples else "(empty)"
+        if len(joined) > max_chars:
+            joined = joined[: max_chars - 1] + "…"
+        previews.append(joined)
+    return previews
+
+
 def _step_pick_columns(df: pd.DataFrame):
     """Step 2 — let user pick lat/long/outcome columns."""
     cols = list(df.columns)
+    previews = _build_previews(df)
 
     print("\n📍 Pick your LATITUDE column:")
-    lat_col = _ask_choice("Latitude column", cols, _guess(cols, _LAT_NAMES))
+    lat_col = _ask_choice("Latitude column", cols, _guess(cols, _LAT_NAMES), previews)
 
     print("\n📍 Pick your LONGITUDE column:")
-    long_col = _ask_choice("Longitude column", cols, _guess(cols, _LONG_NAMES))
+    long_col = _ask_choice("Longitude column", cols, _guess(cols, _LONG_NAMES), previews)
 
     print("\n🏥 Pick your OUTCOME (case/control) column:")
-    outcome_col = _ask_choice("Outcome column", cols, _guess(cols, _OUT_NAMES))
+    outcome_col = _ask_choice("Outcome column", cols, _guess(cols, _OUT_NAMES), previews)
 
     if lat_col == long_col:
         _warn("Latitude and Longitude are the same column — that's probably wrong.")
