@@ -15,106 +15,221 @@ def build_sidebar_html(
 ) -> str:
     return f"""
 <style>
+/* ====== TOGGLE BUTTON ====== */
 #sidebar-toggle-btn {{
     position: fixed;
-    top: 10px;
-    right: 10px;
+    top: 14px;
+    right: 14px;
     z-index: 10000;
-    width: 38px;
-    height: 38px;
-    background: white;
-    border-radius: 4px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    width: 42px;
+    height: 42px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 20px;
     user-select: none;
+    transition: all 0.15s ease;
 }}
+#sidebar-toggle-btn:hover {{ background: #f5f7fa; transform: scale(1.05); }}
 #sidebar-toggle-btn span {{
     display: block;
-    width: 20px;
-    height: 2px;
-    background: #333;
+    width: 22px;
+    height: 2.5px;
+    background: #2c3e50;
     margin: 3px 0;
+    border-radius: 2px;
 }}
-#sidebar-toggle-btn:hover {{ background: #f4f4f4; }}
 
+/* ====== SIDEBAR PANEL ====== */
 #map-sidebar {{
     position: fixed;
-    top: 10px;
-    right: 10px;
-    bottom: 10px;
-    width: 260px;
+    top: 14px;
+    right: 14px;
+    bottom: 14px;
+    width: 300px;
     z-index: 9999;
-    background: white;
-    padding: 10px 12px;
-    border-radius: 6px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 13px;
+    color: #2c3e50;
     overflow-y: auto;
-    transform: translateX(110%);
-    transition: transform 0.25s ease-out;
-    font-family: sans-serif;
+    transform: translateX(115%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }}
 #map-sidebar.open {{ transform: translateX(0); }}
-#map-sidebar h4 {{
-    margin: 8px 0 6px 0;
-    font-size: 14px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 3px;
-    color: #333;
+
+#map-sidebar::-webkit-scrollbar {{ width: 6px; }}
+#map-sidebar::-webkit-scrollbar-thumb {{ background: #ccc; border-radius: 3px; }}
+
+.sidebar-header {{
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid #eef0f3;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px 12px 0 0;
+    color: #fff;
 }}
-#map-sidebar label {{ display: block; margin: 4px 0; cursor: pointer; }}
-#map-sidebar .sidebar-section {{ margin-bottom: 12px; }}
-#map-sidebar .sidebar-footer {{
-    margin-top: 12px;
+.sidebar-header h2 {{
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}}
+.sidebar-header .stat-row {{
+    margin-top: 8px;
+    display: flex;
+    gap: 12px;
     font-size: 11px;
-    color: #555;
-    border-top: 1px solid #eee;
-    padding-top: 8px;
+    opacity: 0.95;
 }}
-#map-sidebar a.download-link {{
-    display: block;
-    margin: 4px 0;
-    color: #0066cc;
-    text-decoration: underline;
+.sidebar-header .stat-row b {{ font-size: 14px; display: block; }}
+
+.sidebar-section {{
+    padding: 14px 18px;
+    border-bottom: 1px solid #eef0f3;
+}}
+.sidebar-section h4 {{
+    margin: 0 0 10px 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #6b7280;
+}}
+
+/* Segmented control for mode picker */
+.seg-control {{
+    display: flex;
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 3px;
+}}
+.seg-control label {{
+    flex: 1;
+    text-align: center;
+    padding: 7px 8px;
+    border-radius: 6px;
     cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}}
+.seg-control input {{ display: none; }}
+.seg-control input:checked + span {{
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    color: #2c3e50;
     font-weight: 600;
 }}
-#map-sidebar a.download-link:hover {{ color: #004a99; }}
+.seg-control span {{
+    display: block;
+    padding: 7px 8px;
+    border-radius: 6px;
+    color: #6b7280;
+    transition: all 0.15s ease;
+}}
+.seg-control label:hover span {{ color: #2c3e50; }}
 
+/* Color swatches */
+.swatch-row {{
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 6px 0;
+}}
+.swatch-row label {{
+    flex: 1;
+    font-size: 12px;
+    color: #4b5563;
+}}
+.swatch-row input[type="color"] {{
+    width: 38px;
+    height: 28px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px;
+    background: #fff;
+}}
+
+/* Slider */
+input[type="range"] {{ width: 100%; accent-color: #667eea; }}
+.slider-row {{ display: flex; align-items: center; gap: 10px; }}
+.slider-value {{
+    min-width: 32px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #667eea;
+    text-align: right;
+}}
+
+/* Export buttons */
+.btn {{
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    margin: 6px 0;
+    background: #667eea;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}}
+.btn:hover {{ background: #5568d3; transform: translateY(-1px); }}
+.btn.secondary {{ background: #fff; color: #667eea; border: 1.5px solid #667eea; }}
+.btn.secondary:hover {{ background: #f0f3ff; }}
+
+/* Reset */
+.spot-filter {{ display: none; margin-top: 10px; }}
+.spot-filter.show {{ display: block; }}
+
+/* ====== LEGEND ====== */
 #map-legend {{
     position: absolute;
-    top: 20px;
+    top: 16px;
     left: 60px;
     z-index: 1000;
-    background: rgba(255,255,255,0.9);
-    padding: 8px 10px;
-    border-radius: 4px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    background: #fff;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     font-size: 12px;
-    font-family: sans-serif;
-    min-width: 100px;
-    border: 1px solid #ccc;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    min-width: 110px;
     display: none;
 }}
 #map-legend h4 {{
-    margin: 0 0 6px 0;
-    font-size: 13px;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 2px;
+    margin: 0 0 8px 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #6b7280;
     text-align: center;
 }}
-.legend-item {{ display: flex; align-items: center; margin-bottom: 4px; }}
+.legend-item {{
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #2c3e50;
+}}
 .legend-icon {{
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    margin-right: 8px;
-    border: 1px solid rgba(0,0,0,0.2);
-    display: inline-block;
+    margin-right: 9px;
+    border: 1px solid rgba(0,0,0,0.15);
 }}
 
 @media print {{
@@ -124,7 +239,7 @@ def build_sidebar_html(
 }}
 </style>
 
-<div id="sidebar-toggle-btn" title="Map Options">
+<div id="sidebar-toggle-btn" title="Map options">
   <div><span></span><span></span><span></span></div>
 </div>
 
@@ -141,61 +256,71 @@ def build_sidebar_html(
 </div>
 
 <div id="map-sidebar">
-  <div class="sidebar-section">
-    <h4>Map Mode</h4>
-    <label><input type="radio" name="markerMode" value="dots" checked> Dot Density (Cases)</label>
-    <label><input type="radio" name="markerMode" value="pins"> Spot Map (Pins)</label>
-  </div>
-
-  <div class="sidebar-section">
-    <h4>Spot Map Filter</h4>
-    <label><input type="radio" name="spotFilterMode" value="cases" checked> Cases Only</label>
-    <label><input type="radio" name="spotFilterMode" value="both"> Cases &amp; Controls</label>
-  </div>
-
-  <div class="sidebar-section">
-    <h4>Cluster Color (Cases)</h4>
-    <label><input type="radio" name="colorMode" value="red"> Red</label>
-    <label><input type="radio" name="colorMode" value="blue"> Blue</label>
-    <label><input type="radio" name="colorMode" value="green"> Green</label>
-    <label>
-      <input type="radio" name="colorMode" value="custom" checked> Custom
-      <input type="color" id="clusterCustomColor" value="{cluster_color}"
-             style="margin-left:6px;vertical-align:middle;width:40px;height:20px;border:none;padding:0;">
-    </label>
-  </div>
-
-  <div class="sidebar-section">
-    <h4>Spot Map Colors</h4>
-    <div style="margin-bottom:6px;">
-      <b>Cases:</b><br>
-      <input type="color" id="caseColorPicker" value="{case_color}"
-             style="vertical-align:middle;width:40px;height:20px;border:none;padding:0;">
-      <button type="button" id="caseApply" style="font-size:11px;margin-left:4px;">Apply</button>
-    </div>
-    <div>
-      <b>Controls:</b><br>
-      <input type="color" id="controlColorPicker" value="{control_color}"
-             style="vertical-align:middle;width:40px;height:20px;border:none;padding:0;">
-      <button type="button" id="controlApply" style="font-size:11px;margin-left:4px;">Apply</button>
+  <div class="sidebar-header">
+    <h2>🗺️ SpotMap Controls</h2>
+    <div class="stat-row">
+      <div><b>{n_cases}</b>Cases</div>
+      <div><b>{n_controls}</b>Controls</div>
+      <div><b>{mode}</b>Zoom</div>
     </div>
   </div>
 
   <div class="sidebar-section">
-    <h4>Pin Size</h4>
-    <input type="range" id="pinSizeSlider" min="0.5" max="2.0" step="0.25" value="1.0" style="width:100%;">
+    <h4>Display Mode</h4>
+    <div class="seg-control">
+      <label>
+        <input type="radio" name="markerMode" value="dots" checked>
+        <span>Dot Density</span>
+      </label>
+      <label>
+        <input type="radio" name="markerMode" value="pins">
+        <span>Spot Pins</span>
+      </label>
+    </div>
+    <div class="spot-filter" id="spotFilterBox">
+      <h4 style="margin-top:12px;">Show</h4>
+      <div class="seg-control">
+        <label>
+          <input type="radio" name="spotFilterMode" value="cases" checked>
+          <span>Cases Only</span>
+        </label>
+        <label>
+          <input type="radio" name="spotFilterMode" value="both">
+          <span>Cases &amp; Controls</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-section" id="clusterColorSection">
+    <h4>Cluster Colour</h4>
+    <div class="swatch-row">
+      <label>Pick a colour</label>
+      <input type="color" id="clusterCustomColor" value="{cluster_color}">
+    </div>
+  </div>
+
+  <div class="sidebar-section" id="pinColorSection" style="display:none;">
+    <h4>Pin Colours</h4>
+    <div class="swatch-row">
+      <label>Cases</label>
+      <input type="color" id="caseColorPicker" value="{case_color}">
+    </div>
+    <div class="swatch-row">
+      <label>Controls</label>
+      <input type="color" id="controlColorPicker" value="{control_color}">
+    </div>
+    <h4 style="margin-top:14px;">Pin Size</h4>
+    <div class="slider-row">
+      <input type="range" id="pinSizeSlider" min="0.5" max="2.0" step="0.1" value="1.0">
+      <span class="slider-value" id="pinSizeValue">1.0x</span>
+    </div>
   </div>
 
   <div class="sidebar-section">
-    <h4>Export</h4>
-    <a id="downloadPrintLink" class="download-link">Print / Save PDF</a>
-    <a id="downloadPngLink" class="download-link">Download PNG</a>
-  </div>
-
-  <div class="sidebar-footer">
-    <div><b>Mode:</b> {mode}</div>
-    <div><b>Cases:</b> {n_cases}</div>
-    <div><b>Controls:</b> {n_controls}</div>
+    <h4>Export Map</h4>
+    <a class="btn" id="downloadPngLink">📷 Download PNG</a>
+    <a class="btn secondary" id="downloadPrintLink">🖨️ Print / Save PDF</a>
   </div>
 </div>
 
@@ -268,7 +393,11 @@ window.addEventListener('load', function() {{
   }}
 
   function refreshClusters() {{
-    if (mapObj.hasLayer(dotsLayer)) {{
+    // Use the proper Leaflet.markercluster API to force redraw
+    if (dotsLayer && typeof dotsLayer.refreshClusters === 'function') {{
+      dotsLayer.refreshClusters();
+    }} else if (mapObj.hasLayer(dotsLayer)) {{
+      // Fallback for older versions: full remove + re-add
       mapObj.removeLayer(dotsLayer);
       mapObj.addLayer(dotsLayer);
     }}
@@ -277,6 +406,11 @@ window.addEventListener('load', function() {{
   function applyLayerLogic() {{
     var mode = document.querySelector('input[name="markerMode"]:checked').value;
     var filter = document.querySelector('input[name="spotFilterMode"]:checked').value;
+
+    // Show/hide UI sections based on mode
+    document.getElementById('spotFilterBox').classList.toggle('show', mode === 'pins');
+    document.getElementById('clusterColorSection').style.display = mode === 'dots' ? 'block' : 'none';
+    document.getElementById('pinColorSection').style.display = mode === 'pins' ? 'block' : 'none';
 
     if (mode === 'dots') {{
       if (!mapObj.hasLayer(dotsLayer)) mapObj.addLayer(dotsLayer);
@@ -299,42 +433,35 @@ window.addEventListener('load', function() {{
     r.addEventListener('change', applyLayerLogic);
   }});
 
-  // Cluster color
-  var colorRadios = document.getElementsByName('colorMode');
+  // === Cluster colour — live update on every change ===
   var custClust = document.getElementById('clusterCustomColor');
-
-  function updateClusterColor() {{
-    var val = document.querySelector('input[name="colorMode"]:checked').value;
-    if (val === 'red') window.clusterBaseColor = '#FF0000';
-    else if (val === 'blue') window.clusterBaseColor = '#0000FF';
-    else if (val === 'green') window.clusterBaseColor = '#00AA00';
-    else window.clusterBaseColor = custClust.value;
-    refreshClusters();
+  if (custClust) {{
+    custClust.addEventListener('input', function() {{
+      window.clusterBaseColor = custClust.value;
+      refreshClusters();
+    }});
   }}
 
-  for (var i = 0; i < colorRadios.length; i++) colorRadios[i].addEventListener('change', updateClusterColor);
-  if (custClust) custClust.addEventListener('input', function() {{
-    document.querySelector('input[name="colorMode"][value="custom"]').checked = true;
-    updateClusterColor();
-  }});
-
-  // Spot map colors
-  document.getElementById('caseApply').addEventListener('click', function() {{
-    window.caseColor = document.getElementById('caseColorPicker').value;
+  // === Pin colours — live update (no Apply button needed) ===
+  document.getElementById('caseColorPicker').addEventListener('input', function(e) {{
+    window.caseColor = e.target.value;
     redrawPins();
   }});
-  document.getElementById('controlApply').addEventListener('click', function() {{
-    window.controlColor = document.getElementById('controlColorPicker').value;
+  document.getElementById('controlColorPicker').addEventListener('input', function(e) {{
+    window.controlColor = e.target.value;
     redrawPins();
   }});
 
-  // Pin size
-  document.getElementById('pinSizeSlider').addEventListener('input', function(e) {{
+  // === Pin size ===
+  var sizeSlider = document.getElementById('pinSizeSlider');
+  var sizeValue = document.getElementById('pinSizeValue');
+  sizeSlider.addEventListener('input', function(e) {{
     window.pinScale = parseFloat(e.target.value);
+    sizeValue.textContent = window.pinScale.toFixed(1) + 'x';
     redrawPins();
   }});
 
-  // Export
+  // === Export ===
   document.getElementById('downloadPrintLink').addEventListener('click', function() {{ window.print(); }});
   document.getElementById('downloadPngLink').addEventListener('click', function() {{
     sidebar.classList.remove('open');
@@ -343,7 +470,7 @@ window.addEventListener('load', function() {{
       simpleMapScreenshoter.takeScreen('blob', {{ caption: function() {{ return ''; }} }})
         .then(function(blob) {{
           var link = document.createElement('a');
-          link.download = 'map.png';
+          link.download = 'spotmap.png';
           link.href = URL.createObjectURL(blob);
           link.click();
         }})

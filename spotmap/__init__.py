@@ -4,7 +4,7 @@ from .exceptions import ColumnNotFoundError, NoCasePointsError, SpotMapError
 from .interactive import run_interactive
 from .map_builder import SpotMap
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 __all__ = [
     "SpotMap",
     "run_interactive",
