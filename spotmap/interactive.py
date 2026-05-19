@@ -147,8 +147,6 @@ def _step_pick_columns(df: pd.DataFrame):
     """Step 2 — let user pick lat/long/outcome columns."""
     cols = list(df.columns)
 
-    print("\nColumns available in your file:")
-
     print("\n📍 Pick your LATITUDE column:")
     lat_col = _ask_choice("Latitude column", cols, _guess(cols, _LAT_NAMES))
 
@@ -161,36 +159,97 @@ def _step_pick_columns(df: pd.DataFrame):
     if lat_col == long_col:
         _warn("Latitude and Longitude are the same column — that's probably wrong.")
 
+    # Validate lat/long are numeric and in valid range
+    _validate_coordinates(df, lat_col, long_col)
+
     return lat_col, long_col, outcome_col
 
 
+def _validate_coordinates(df: pd.DataFrame, lat_col: str, long_col: str) -> None:
+    """Warn if lat/long values look wrong."""
+    try:
+        lat_num = pd.to_numeric(df[lat_col], errors="coerce")
+        lon_num = pd.to_numeric(df[long_col], errors="coerce")
+    except Exception:
+        _warn(f"Columns '{lat_col}' / '{long_col}' don't look numeric.")
+        return
+
+    n_missing_lat = lat_num.isna().sum()
+    n_missing_lon = lon_num.isna().sum()
+    if n_missing_lat or n_missing_lon:
+        _warn(f"{n_missing_lat} rows have missing latitude, {n_missing_lon} have missing longitude — these will be skipped.")
+
+    # India bounds: roughly lat 6-37, lon 68-98
+    valid_lat = lat_num.between(-90, 90).sum()
+    valid_lon = lon_num.between(-180, 180).sum()
+    total = lat_num.notna().sum()
+
+    if valid_lat < total or valid_lon < total:
+        _warn("Some coordinates are outside valid Earth ranges (lat ±90, lon ±180).")
+        _info("Tip: are lat/long columns swapped in your CSV?")
+
+    in_india_lat = lat_num.between(6, 38).sum()
+    in_india_lon = lon_num.between(67, 98).sum()
+    if total > 0 and (in_india_lat / total < 0.5 or in_india_lon / total < 0.5):
+        _warn("Most coordinates don't fall inside India.")
+        _info(f"  Lat range in your data: {lat_num.min():.2f} to {lat_num.max():.2f} (India: 6 to 38)")
+        _info(f"  Lon range in your data: {lon_num.min():.2f} to {lon_num.max():.2f} (India: 67 to 98)")
+        _info("Tip: lat/long columns may be swapped. Boundaries won't show correctly.")
+
+
 def _step_pick_case_value(df: pd.DataFrame, outcome_col: str) -> str:
-    """Step 3 — pick which value represents a case."""
-    values = (
-        df[outcome_col]
-        .dropna()
-        .astype(str)
-        .str.strip()
-        .unique()
-        .tolist()
-    )
+    """Step 3 — pick which value represents a case.  Shows counts for each value."""
+    # Build a value-count table
+    norm = df[outcome_col].dropna().astype(str).str.strip()
+    counts = norm.value_counts()
+    values = counts.index.tolist()
 
     if not values:
-        _err(f"Column '{outcome_col}' has no values. Cannot continue.")
+        _err(f"Column '{outcome_col}' has no non-empty values. Cannot continue.")
         raise SystemExit(1)
 
     if len(values) == 1:
-        _warn(f"Only one value found in '{outcome_col}': {values[0]}")
-        _info("Using it as the case value.")
+        _warn(f"Only one value found in '{outcome_col}': {values[0]} ({counts.iloc[0]} rows)")
+        _info("Treating all rows as cases — no controls will appear on the map.")
         return values[0]
 
-    print(f"\n🎯 Pick which value represents a CASE:")
+    # Show values WITH counts
+    print(f"\n🎯 Values found in '{outcome_col}':\n")
+    for i, v in enumerate(values, 1):
+        print(f"  {i}. {v}  ({counts.iloc[i-1]} rows)")
+    print()
+
+    # Smart default
     default_idx = 0
     for i, v in enumerate(values):
-        if v.lower() in ("case", "cases", "1", "yes", "true", "positive"):
+        if v.lower() in ("case", "cases", "1", "yes", "true", "positive", "present"):
             default_idx = i
             break
-    return _ask_choice("Case value", values, default_idx)
+
+    print("Which value should be treated as CASE? (everything else becomes CONTROL)")
+    case_value = _ask_choice("Case value", values, default_idx)
+
+    # Show the user EXACTLY what will happen
+    n_cases = counts[case_value]
+    n_controls = counts.sum() - n_cases
+    print()
+    _info(f"This will plot:")
+    print(f"   • {n_cases} rows as CASES   (where {outcome_col} = '{case_value}')")
+    print(f"   • {n_controls} rows as CONTROLS (all other values)")
+
+    if n_cases == 0:
+        _err("No case rows — cannot build map.")
+        return _step_pick_case_value(df, outcome_col)
+    if n_controls == 0:
+        _info("No control rows. The map will show only cases.")
+
+    # Confirm
+    confirm = _ask("\nIs this correct? (y/n)", default="y")
+    if not confirm.lower().startswith("y"):
+        print("Let's pick again.")
+        return _step_pick_case_value(df, outcome_col)
+
+    return case_value
 
 
 def _step_output_path() -> str:
@@ -273,6 +332,23 @@ def _step_build_map(df, lat_col, long_col, outcome_col, case_value, output_path)
 # MAIN ENTRY POINT
 # =========================================================
 
+def _step_summary(df, lat_col, long_col, outcome_col, case_value, output_path):
+    """Show a summary screen before building."""
+    print()
+    _line("-")
+    print("📋 Summary — please review:")
+    _line("-")
+    print(f"   File rows       : {len(df)}")
+    print(f"   Latitude column : {lat_col}")
+    print(f"   Longitude column: {long_col}")
+    print(f"   Outcome column  : {outcome_col}")
+    print(f"   Case value      : {case_value}")
+    print(f"   Output path     : {output_path}")
+    _line("-")
+    ok = _ask("\nProceed and build the map? (y/n)", default="y")
+    return ok.lower().startswith("y")
+
+
 def run_interactive() -> None:
     """Run an interactive prompt-based wizard to build a SpotMap.
 
@@ -294,7 +370,14 @@ def run_interactive() -> None:
     # Step 4 — output path
     output_path = _step_output_path()
 
-    # Step 5 — build with retry
+    # Step 5 — show summary, allow back-out
+    if not _step_summary(df, lat_col, long_col, outcome_col, case_value, output_path):
+        print("\nLet's redo the setup:")
+        lat_col, long_col, outcome_col = _step_pick_columns(df)
+        case_value = _step_pick_case_value(df, outcome_col)
+        output_path = _step_output_path()
+
+    # Step 6 — build with retry
     while True:
         success = _step_build_map(
             df, lat_col, long_col, outcome_col, case_value, output_path
