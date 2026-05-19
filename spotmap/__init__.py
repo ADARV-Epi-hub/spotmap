@@ -1,7 +1,14 @@
 """spotmap — Interactive epidemiological spot maps for India."""
 
 from .exceptions import ColumnNotFoundError, NoCasePointsError, SpotMapError
+from .interactive import run_interactive
 from .map_builder import SpotMap
 
-__version__ = "0.1.1"
-__all__ = ["SpotMap", "SpotMapError", "ColumnNotFoundError", "NoCasePointsError"]
+__version__ = "0.1.2"
+__all__ = [
+    "SpotMap",
+    "run_interactive",
+    "SpotMapError",
+    "ColumnNotFoundError",
+    "NoCasePointsError",
+]
