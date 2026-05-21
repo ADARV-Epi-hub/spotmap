@@ -143,24 +143,46 @@ class SpotMap:
         states_sub = crop_geodataframe(affected_states, bounds, self.margin_deg)
         districts_sub = crop_geodataframe(affected_districts, bounds, self.margin_deg)
 
-        # Fallback — if the spatial join did not match any states/districts
-        # (e.g. points just outside boundary lines), still show all boundaries
-        # visible in the data bounding box so the user has spatial context.
-        if states_sub is None or states_sub.empty:
-            states_sub = crop_geodataframe(states, bounds, self.margin_deg)
-        if districts_sub is None or districts_sub.empty:
-            districts_sub = crop_geodataframe(districts, bounds, self.margin_deg)
-
         # 6. Init map
-        zoom = {"india": 4, "states": 5, "districts": 7}[mode]
         m = folium.Map(
             location=[points_cases.geometry.y.mean(), points_cases.geometry.x.mean()],
-            zoom_start=zoom,
+            zoom_start=5,
             tiles="CartoDB positron",
+            zoom_snap=0.1,
+            zoom_delta=0.1,
+            max_zoom=25,
+            scroll_wheel_zoom=True,
         )
 
         # 7. Boundary layers
         add_boundary_layers(m, india_sub, states_sub, districts_sub)
+
+        # 7b. Auto-zoom to the most relevant view
+        import numpy as np
+        n_states_uniq = len(unique_state_names)
+        n_dist_uniq = len(affected_dist_names)
+
+        target_bounds = None
+        if n_states_uniq > 1:
+            target_bounds = affected_states.total_bounds if not affected_states.empty else bounds
+        elif n_states_uniq == 1:
+            if n_dist_uniq > 1:
+                target_bounds = affected_states.total_bounds if not affected_states.empty else bounds
+            else:
+                target_bounds = affected_districts.total_bounds if not affected_districts.empty else bounds
+        else:
+            target_bounds = bounds
+
+        if target_bounds is not None and np.isfinite(target_bounds).all():
+            min_x, min_y, max_x, max_y = target_bounds
+            span_x = max_x - min_x
+            span_y = max_y - min_y
+            buffer_ratio = 0.05
+            fit_box = [
+                [min_y - span_y * buffer_ratio, min_x - span_x * buffer_ratio],
+                [max_y + span_y * buffer_ratio, max_x + span_x * buffer_ratio],
+            ]
+            m.fit_bounds(fit_box)
 
         # 8. Marker layers
         cluster, pins_cases, pins_controls = add_marker_layers(
