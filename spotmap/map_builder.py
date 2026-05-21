@@ -143,6 +143,14 @@ class SpotMap:
         states_sub = crop_geodataframe(affected_states, bounds, self.margin_deg)
         districts_sub = crop_geodataframe(affected_districts, bounds, self.margin_deg)
 
+        # Fallback — if the spatial join did not match any states/districts
+        # (e.g. points just outside boundary lines), still show all boundaries
+        # visible in the data bounding box so the user has spatial context.
+        if states_sub is None or states_sub.empty:
+            states_sub = crop_geodataframe(states, bounds, self.margin_deg)
+        if districts_sub is None or districts_sub.empty:
+            districts_sub = crop_geodataframe(districts, bounds, self.margin_deg)
+
         # 6. Init map
         zoom = {"india": 4, "states": 5, "districts": 7}[mode]
         m = folium.Map(

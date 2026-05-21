@@ -127,8 +127,13 @@ _SUPPORTED_EXT = (".csv", ".xlsx", ".xls", ".xlsm", ".xlsb", ".ods", ".tsv", ".t
 
 def _step_load_csv() -> pd.DataFrame:
     """Step 1 — load the data file (CSV / Excel / TSV), with retry on errors."""
+    print("─" * 55)
+    print("📁 Step 1 — Where is your data file?")
+    print("   Supported: CSV (.csv), Excel (.xlsx, .xls), TSV")
+    print("   Tip: you can paste the full path, or drag-drop the file here.")
+    print("─" * 55)
     while True:
-        path = _ask("\n📁 Enter the path to your data file (CSV or Excel)")
+        path = _ask("Path to your file")
         if not os.path.exists(path):
             _err(f"File not found: {path}")
             _info("Tip: paste the full path, or drag the file into the terminal.")
@@ -192,17 +197,26 @@ def _step_pick_columns(df: pd.DataFrame):
     cols = list(df.columns)
     previews = _build_previews(df)
 
-    print("\n📍 Pick your LATITUDE column:")
-    lat_col = _ask_choice("Latitude column", cols, _guess(cols, _LAT_NAMES), previews)
+    print("\n" + "─" * 55)
+    print("📍 Step 2 — Which column holds the LATITUDE?")
+    print("   (Latitude is the North-South number, e.g. 28.61 for Delhi)")
+    print("─" * 55)
+    lat_col = _ask_choice("Your latitude column", cols, _guess(cols, _LAT_NAMES), previews)
 
-    print("\n📍 Pick your LONGITUDE column:")
-    long_col = _ask_choice("Longitude column", cols, _guess(cols, _LONG_NAMES), previews)
+    print("\n" + "─" * 55)
+    print("📍 Step 3 — Which column holds the LONGITUDE?")
+    print("   (Longitude is the East-West number, e.g. 77.20 for Delhi)")
+    print("─" * 55)
+    long_col = _ask_choice("Your longitude column", cols, _guess(cols, _LONG_NAMES), previews)
 
-    print("\n🏥 Pick your OUTCOME (case/control) column:")
-    outcome_col = _ask_choice("Outcome column", cols, _guess(cols, _OUT_NAMES), previews)
+    print("\n" + "─" * 55)
+    print("🏥 Step 4 — Which column tells us CASE vs CONTROL?")
+    print("   (e.g. a column with values like 'case'/'control' or '1'/'0')")
+    print("─" * 55)
+    outcome_col = _ask_choice("Your outcome column", cols, _guess(cols, _OUT_NAMES), previews)
 
     if lat_col == long_col:
-        _warn("Latitude and Longitude are the same column — that's probably wrong.")
+        _warn("You picked the same column for latitude and longitude. That's probably wrong.")
 
     # Validate lat/long are numeric and in valid range
     _validate_coordinates(df, lat_col, long_col)
@@ -259,9 +273,14 @@ def _step_pick_case_value(df: pd.DataFrame, outcome_col: str) -> str:
         return values[0]
 
     # Show values WITH counts
-    print(f"\n🎯 Values found in '{outcome_col}':\n")
+    print("\n" + "─" * 55)
+    print(f"🎯 Step 5 — Which value in '{outcome_col}' means a CASE?")
+    print("   (We treat that value as cases, everything else as controls)")
+    print("─" * 55)
+    print(f"\nHere's what we found in '{outcome_col}':\n")
     for i, v in enumerate(values, 1):
-        print(f"  {i}. {v}  ({counts.iloc[i-1]} rows)")
+        bar = "█" * min(int(counts.iloc[i-1] / counts.max() * 12), 12)
+        print(f"  {i}. {v:<15} {bar}  ({counts.iloc[i-1]} rows)")
     print()
 
     # Smart default
@@ -382,8 +401,12 @@ def run_interactive(output_path: str = _DEFAULT_OUTPUT) -> None:
         Where to save the HTML map.  Defaults to ``spotmap.html`` in the
         current directory.
     """
-    _header("SpotMap — Interactive Setup")
-    print("Press Enter to accept the default shown in [brackets].\n")
+    print()
+    _line("═")
+    print("   🗺️  Welcome to SpotMap")
+    print("   We'll guide you through 5 quick steps to build your map.")
+    _line("═")
+    print("Tip: press Enter to accept the suggested answer in [brackets].\n")
 
     # Step 1 — load file
     df = _step_load_csv()

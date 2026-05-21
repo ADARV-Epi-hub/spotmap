@@ -78,10 +78,10 @@ def add_boundary_layers(
         name="Affected States",
         control=False,
         style_function=lambda x: {
-            "fillOpacity": 0.05,
-            "color": "#4B0082",
-            "weight": 1.5,
-            "opacity": 0.7,
+            "fillOpacity": 0.08,
+            "color": "#3a0a6b",
+            "weight": 2.5,
+            "opacity": 0.95,
         },
     ).add_to(m)
 
@@ -90,10 +90,11 @@ def add_boundary_layers(
         name="Affected Districts",
         control=False,
         style_function=lambda x: {
-            "color": "#000000",
-            "weight": 1,
-            "fillOpacity": 0.01,
-            "opacity": 1.0,
+            "color": "#1a1a1a",
+            "weight": 1.2,
+            "fillOpacity": 0.02,
+            "opacity": 0.85,
+            "dashArray": "4,3",
         },
     ).add_to(m)
 
