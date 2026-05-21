@@ -118,6 +118,36 @@ def _guess(columns: list, candidates: list) -> int:
     return 0
 
 
+def _preview_dataframe(df: pd.DataFrame, n_rows: int = 3) -> None:
+    """Show a clean preview of the dataframe — columns and first few rows."""
+    print()
+    print("─" * 55)
+    print(f"📋 Here's what's in your file ({len(df)} rows × {len(df.columns)} columns):")
+    print("─" * 55)
+    print()
+    print("Columns found:")
+    for i, c in enumerate(df.columns, 1):
+        sample = df[c].dropna().astype(str).str.strip()
+        if len(sample) > 0:
+            preview_val = sample.iloc[0]
+            if len(preview_val) > 30:
+                preview_val = preview_val[:30] + "…"
+        else:
+            preview_val = "(empty)"
+        print(f"  {i:>2}. {c:<25} →  e.g.  {preview_val}")
+    print()
+    print(f"First {min(n_rows, len(df))} rows:")
+    try:
+        # Use a compact representation that doesn't blow up the terminal width
+        with pd.option_context("display.max_columns", None,
+                               "display.width", 120,
+                               "display.max_colwidth", 20):
+            print(df.head(n_rows).to_string(index=False))
+    except Exception:
+        print(df.head(n_rows))
+    print()
+
+
 # =========================================================
 # STEP HANDLERS — each catches its own errors and retries
 # =========================================================
@@ -151,11 +181,19 @@ def _step_load_csv() -> pd.DataFrame:
                 _ok("Detected TSV file.")
             else:
                 df = pd.read_csv(path)
-            df.columns = df.columns.str.strip()
+            # Clean column names: strip whitespace and remove fully unnamed columns
+            df.columns = df.columns.astype(str).str.strip()
+            unnamed_cols = [c for c in df.columns if c.startswith("Unnamed:") or c == ""]
+            if unnamed_cols:
+                # Drop fully empty unnamed columns (common Excel artifact)
+                for c in unnamed_cols:
+                    if df[c].isna().all():
+                        df = df.drop(columns=[c])
             if len(df) == 0:
                 _err("The file is empty. Try a different file.")
                 continue
             _ok(f"Loaded {len(df)} rows and {len(df.columns)} columns")
+            _preview_dataframe(df)
             return df
         except ImportError as e:
             _err(f"Missing reader for this file type: {e}")
