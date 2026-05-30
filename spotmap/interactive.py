@@ -1,11 +1,12 @@
 """Interactive prompt-based wrapper for non-coders.
 
 Usage:
-    from spotmap import run_interactive
-    run_interactive()
+    from spotmap import spotmap_run
+    spotmap_run()
 """
 
 import os
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -427,7 +428,7 @@ def _step_build_map(df, lat_col, long_col, outcome_col, case_value, output_path)
 _DEFAULT_OUTPUT = "spotmap.html"
 
 
-def run_interactive(output_path: str = _DEFAULT_OUTPUT) -> None:
+def spotmap_run(output_path: str = _DEFAULT_OUTPUT) -> None:
     """Run an interactive prompt-based wizard to build a SpotMap.
 
     Designed for users who don't want to write Python code.  Each step
@@ -474,3 +475,19 @@ def run_interactive(output_path: str = _DEFAULT_OUTPUT) -> None:
     _line()
     print(f"\n🗺️  Open this file in your browser:\n   {os.path.abspath(output_path)}\n")
     _line()
+
+
+def run_interactive(output_path: str = _DEFAULT_OUTPUT) -> None:
+    """Deprecated alias for :func:`spotmap_run`.
+
+    .. deprecated:: 0.1.11
+       Use :func:`spotmap_run` instead. ``run_interactive`` will be removed
+       in a future release.
+    """
+    warnings.warn(
+        "run_interactive() is deprecated; use spotmap_run() instead. "
+        "run_interactive will be removed in a future release.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return spotmap_run(output_path=output_path)
