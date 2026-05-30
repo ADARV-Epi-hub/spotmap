@@ -416,7 +416,7 @@ def _step_build_map(df, lat_col, long_col, outcome_col, case_value, output_path)
     except Exception as e:  # noqa: BLE001
         _err(f"Something went wrong: {e}")
         _info("If this keeps happening, report it at:")
-        _info("  https://github.com/TharunMallesan/spotmap/issues")
+        _info("  https://github.com/ADARV-Epi-hub/spotmap/issues")
     return False
 
 

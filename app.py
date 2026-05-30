@@ -185,5 +185,5 @@ if st.button("🚀 Generate Map", type="primary", use_container_width=True):
 st.markdown("---")
 st.caption(
     "Built with [SpotMap](https://pypi.org/project/spotmap/) · "
-    "[GitHub](https://github.com/TharunMallesan/spotmap)"
+    "[GitHub](https://github.com/ADARV-Epi-hub/spotmap)"
 )

@@ -31,9 +31,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/TharunMallesan/spotmap"
-Repository = "https://github.com/TharunMallesan/spotmap"
-"Bug Tracker" = "https://github.com/TharunMallesan/spotmap/issues"
+Homepage = "https://github.com/ADARV-Epi-hub/spotmap"
+Repository = "https://github.com/ADARV-Epi-hub/spotmap"
+"Bug Tracker" = "https://github.com/ADARV-Epi-hub/spotmap/issues"
 
 [project.scripts]
 spotmap = "spotmap.cli:main"
