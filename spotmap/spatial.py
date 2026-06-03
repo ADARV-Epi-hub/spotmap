@@ -35,7 +35,7 @@ def _ensure_wgs84(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         gdf = gdf.set_crs(epsg=4326)
     elif gdf.crs.to_epsg() != 4326:
         gdf = gdf.to_crs(epsg=4326)
-    gdf["geometry"] = gdf["geometry"].buffer(0)
+    gdf["geometry"] = gdf["geometry"].make_valid()
     return gdf
 
 
@@ -61,7 +61,13 @@ def load_boundaries(state_shp: str = None, district_shp: str = None):
 
 
 def build_india_outline(states: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    geom = states.unary_union
+    # union_all() supersedes the now-deprecated unary_union attribute in
+    # newer geopandas; fall back to unary_union for older versions.
+    geom = (
+        states.union_all()
+        if hasattr(states, "union_all")
+        else states.unary_union
+    )
     return gpd.GeoDataFrame({"geometry": [geom]}, crs=states.crs)
 
 
@@ -95,6 +101,7 @@ def spatial_join(
         lsuffix="_csv",
         rsuffix="_shp",
     ).drop(columns=["index_right"], errors="ignore")
+    joined_district = joined_district[~joined_district.index.duplicated(keep="first")]
 
     joined_state = gpd.sjoin(
         points,
@@ -104,6 +111,7 @@ def spatial_join(
         lsuffix="_csv",
         rsuffix="_shp",
     ).drop(columns=["index_right"], errors="ignore")
+    joined_state = joined_state[~joined_state.index.duplicated(keep="first")]
 
     result = points.copy()
     result[district_name_col] = _get_col_safe(joined_district, district_name_col)

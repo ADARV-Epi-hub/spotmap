@@ -1,15 +1,18 @@
 """Smart CSV loading with automatic latitude/longitude and outcome column detection."""
 
 import re
+import warnings
 
 import numpy as np
 import pandas as pd
 
 from .exceptions import ColumnNotFoundError
 
-_FLOAT_PATTERN = re.compile(r"^-?\d+(\.\d+)?$")
+# Accept plain decimals AND scientific notation (e.g. 1.1e1, -2.5E-3)
+_FLOAT_PATTERN = re.compile(r"^-?\d+(\.\d+)?([eE][-+]?\d+)?$")
 _PAIR_PATTERN = re.compile(
-    r"^[\[\(]?\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?)\s*[\]\)]?$"
+    r"^[\[\(]?\s*(-?\d+(\.\d+)?([eE][-+]?\d+)?)\s*,\s*"
+    r"(-?\d+(\.\d+)?([eE][-+]?\d+)?)\s*[\]\)]?$"
 )
 
 _LAT_NAMES = {"lat", "latitude", "y", "northing"}
@@ -71,9 +74,9 @@ def detect_lat_lon(df: pd.DataFrame, lat_col: str = None, long_col: str = None):
     for col in cols:
         if _is_pair_col(df, col):
             lat_s, lon_s = _detect_from_combined(df, col)
-            df["_auto_lat"] = lat_s
-            df["_auto_lon"] = lon_s
-            return "_auto_lat", "_auto_lon"
+            df["_spotmap_auto_lat"] = lat_s
+            df["_spotmap_auto_lon"] = lon_s
+            return "_spotmap_auto_lat", "_spotmap_auto_lon"
 
     # Separate numeric columns
     numeric_cols = [c for c in cols if _is_float_col(df, c)]
@@ -163,14 +166,58 @@ def load_csv(
     else:
         df = _read_data_file(data)
 
+    if len(df) == 0:
+        raise ValueError("Input data is empty (0 rows). Cannot build a map.")
+
     # Strip whitespace from column names
     df.columns = df.columns.str.strip()
 
     lat_col, long_col = detect_lat_lon(df, lat_col, long_col)
 
+    # Coerce coordinates to numeric and drop rows with missing / invalid coords
+    lat_num = pd.to_numeric(df[lat_col], errors="coerce")
+    lon_num = pd.to_numeric(df[long_col], errors="coerce")
+    bad = (
+        lat_num.isna()
+        | lon_num.isna()
+        | (lat_num < -90) | (lat_num > 90)
+        | (lon_num < -180) | (lon_num > 180)
+    )
+    n_bad = int(bad.sum())
+    if n_bad > 0:
+        warnings.warn(
+            f"{n_bad} row(s) with missing or out-of-range coordinates "
+            "were dropped before mapping.",
+            UserWarning,
+            stacklevel=2,
+        )
+        df = df.loc[~bad].copy()
+        lat_num = lat_num.loc[~bad]
+        lon_num = lon_num.loc[~bad]
+        if len(df) == 0:
+            raise ValueError(
+                "All rows had missing or invalid coordinates. Nothing to map."
+            )
+    df[lat_col] = lat_num
+    df[long_col] = lon_num
+
+    # India bounds sanity check (warn if most points are clearly elsewhere)
+    in_india = (
+        (lat_num >= 6) & (lat_num <= 38)
+        & (lon_num >= 67) & (lon_num <= 98)
+    )
+    if in_india.sum() / len(df) < 0.5:
+        outside_pct = round(100 * (1 - in_india.sum() / len(df)))
+        warnings.warn(
+            f"Most points ({outside_pct}%) fall outside India's bounding box "
+            "(lat 6-38, lon 67-98). Are your lat/lon columns swapped?",
+            UserWarning,
+            stacklevel=2,
+        )
+
     outcome_col, case_value = detect_outcome(df, outcome_col, case_value)
 
-    df["_outcome_norm"] = (
+    df["_spotmap_outcome_norm"] = (
         df[outcome_col].astype(str).str.strip().str.lower().replace({"nan": np.nan})
     )
 

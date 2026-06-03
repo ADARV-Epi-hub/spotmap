@@ -119,7 +119,7 @@ class SpotMap:
         )
 
         # 4. Split cases / controls
-        mask = points_joined["_outcome_norm"] == case_value
+        mask = points_joined["_spotmap_outcome_norm"] == case_value
         points_cases = points_joined[mask].copy()
         points_controls = points_joined[~mask].copy()
 
