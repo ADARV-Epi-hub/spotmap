@@ -231,8 +231,16 @@ def _build_previews(df: pd.DataFrame, max_samples: int = 3, max_chars: int = 40)
     return previews
 
 
+# Sentinel returned as outcome_col when the user has no case/control variable
+_NO_OUTCOME = "\x00__all_cases__"
+
+
 def _step_pick_columns(df: pd.DataFrame):
-    """Step 2 — let user pick lat/long/outcome columns."""
+    """Step 2 — let user pick lat/long/outcome columns.
+
+    The outcome column may come back as the ``_NO_OUTCOME`` sentinel, meaning
+    the dataset has no case/control variable and every row is a case.
+    """
     cols = list(df.columns)
     previews = _build_previews(df)
 
@@ -251,8 +259,19 @@ def _step_pick_columns(df: pd.DataFrame):
     print("\n" + "─" * 55)
     print("🏥 Step 4 — Which column tells us CASE vs CONTROL?")
     print("   (e.g. a column with values like 'case'/'control' or '1'/'0')")
+    print("   If your data only has cases and no control group, pick the")
+    print("   first option to treat every row as a case.")
     print("─" * 55)
-    outcome_col = _ask_choice("Your outcome column", cols, _guess(cols, _OUT_NAMES), previews)
+    no_outcome_label = "(No outcome column - treat all rows as cases)"
+    cols_with_none = [no_outcome_label] + cols
+    previews_with_none = ["All rows treated as cases"] + previews
+    outcome_choice = _ask_choice(
+        "Your outcome column",
+        cols_with_none,
+        _guess(cols, _OUT_NAMES) + 1,
+        previews_with_none,
+    )
+    outcome_col = _NO_OUTCOME if outcome_choice == no_outcome_label else outcome_choice
 
     if lat_col == long_col:
         _warn("You picked the same column for latitude and longitude. That's probably wrong.")
@@ -386,13 +405,15 @@ def _step_output_path() -> str:
 def _step_build_map(df, lat_col, long_col, outcome_col, case_value, output_path):
     """Step 5 — actually build the map."""
     print("\n⚙️  Building the map...")
+    all_cases = outcome_col == _NO_OUTCOME
     try:
         SpotMap(
             df,
             lat_col=lat_col,
             long_col=long_col,
-            outcome_col=outcome_col,
-            case_value=case_value,
+            outcome_col=None if all_cases else outcome_col,
+            case_value=None if all_cases else case_value,
+            all_cases=all_cases,
         ).build().save(output_path)
         _ok(f"Map saved to: {output_path}")
         return True
@@ -453,8 +474,12 @@ def spotmap_run(output_path: str = _DEFAULT_OUTPUT) -> None:
     # Step 2 — pick columns
     lat_col, long_col, outcome_col = _step_pick_columns(df)
 
-    # Step 3 — pick case value
-    case_value = _step_pick_case_value(df, outcome_col)
+    # Step 3 — pick case value (skipped in cases-only mode)
+    if outcome_col == _NO_OUTCOME:
+        case_value = None
+        _info(f"Treating all {len(df)} rows as cases (no controls).")
+    else:
+        case_value = _step_pick_case_value(df, outcome_col)
 
     # Step 4 — build immediately (no confirmation needed)
     while True:
@@ -470,7 +495,11 @@ def spotmap_run(output_path: str = _DEFAULT_OUTPUT) -> None:
         # Re-prompt for whatever they want to fix
         print("\nLet's redo the setup:")
         lat_col, long_col, outcome_col = _step_pick_columns(df)
-        case_value = _step_pick_case_value(df, outcome_col)
+        if outcome_col == _NO_OUTCOME:
+            case_value = None
+            _info(f"Treating all {len(df)} rows as cases (no controls).")
+        else:
+            case_value = _step_pick_case_value(df, outcome_col)
 
     _line()
     print(f"\n🗺️  Open this file in your browser:\n   {os.path.abspath(output_path)}\n")

@@ -153,10 +153,14 @@ def load_csv(
     long_col: str = None,
     outcome_col: str = None,
     case_value: str = None,
+    all_cases: bool = False,
 ) -> tuple:
     """Load and prepare the points data from a file path or DataFrame.
 
     Accepts CSV, Excel (.xlsx/.xls), or TSV files when *data* is a path.
+
+    When *all_cases* is ``True``, outcome detection is skipped and every row is
+    treated as a case (useful for case-only datasets with no control group).
 
     Returns:
         (df, lat_col, long_col, outcome_col, case_value)
@@ -214,6 +218,13 @@ def load_csv(
             UserWarning,
             stacklevel=2,
         )
+
+    # Cases-only mode: skip outcome detection, treat every row as a case.
+    if all_cases:
+        outcome_col = "_spotmap_outcome_norm"
+        case_value = "case"
+        df["_spotmap_outcome_norm"] = "case"
+        return df, lat_col, long_col, outcome_col, case_value
 
     outcome_col, case_value = detect_outcome(df, outcome_col, case_value)
 

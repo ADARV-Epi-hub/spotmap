@@ -42,6 +42,10 @@ class SpotMap:
     case_value:
         Value in *outcome_col* that represents a **case**.  Auto-detected when
         omitted.
+    all_cases:
+        If ``True``, skip outcome detection and treat every row as a case (no
+        controls on the map).  Useful for outbreak surveillance or case-only
+        datasets that have no control group.  Defaults to ``False``.
     count_cutoff:
         If the number of affected districts is ≤ this value, the map zooms to
         district level; otherwise to state or national level.
@@ -66,6 +70,7 @@ class SpotMap:
         long_col: str = None,
         outcome_col: str = None,
         case_value: str = None,
+        all_cases: bool = False,
         count_cutoff: int = 2,
         margin_deg: float = 1.0,
         cluster_color: str = _DEFAULT_CLUSTER_COLOR,
@@ -81,6 +86,7 @@ class SpotMap:
         self.long_col = long_col
         self.outcome_col = outcome_col
         self.case_value = case_value
+        self.all_cases = all_cases
         self.count_cutoff = count_cutoff
         self.margin_deg = margin_deg
         self.cluster_color = cluster_color
@@ -105,6 +111,7 @@ class SpotMap:
             long_col=self.long_col,
             outcome_col=self.outcome_col,
             case_value=self.case_value,
+            all_cases=self.all_cases,
         )
 
         # 2. Load boundaries
