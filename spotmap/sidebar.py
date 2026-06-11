@@ -15,227 +15,159 @@ def build_sidebar_html(
 ) -> str:
     return f"""
 <style>
-/* ====== TOGGLE BUTTON ====== */
+:root {{
+    --sm-primary: #0c4a6e;
+    --sm-primary-2: #0e7490;
+    --sm-accent: #0891b2;
+    --sm-ink: #0f172a;
+    --sm-muted: #64748b;
+    --sm-border: #e2e8f0;
+    --sm-surface: #ffffff;
+    --sm-tint: #f8fafc;
+}}
 #sidebar-toggle-btn {{
-    position: fixed;
-    top: 14px;
-    right: 14px;
-    z-index: 10000;
-    width: 42px;
-    height: 42px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.15s ease;
+    position: fixed; top: 16px; right: 16px; z-index: 10000;
+    width: 44px; height: 44px; background: var(--sm-primary); border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(12,74,110,0.35); display: flex;
+    align-items: center; justify-content: center; cursor: pointer;
+    user-select: none; transition: all 0.18s ease;
 }}
-#sidebar-toggle-btn:hover {{ background: #f5f7fa; transform: scale(1.05); }}
+#sidebar-toggle-btn:hover {{ background: var(--sm-primary-2); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(12,74,110,0.45); }}
 #sidebar-toggle-btn span {{
-    display: block;
-    width: 22px;
-    height: 2.5px;
-    background: #2c3e50;
-    margin: 3px 0;
-    border-radius: 2px;
+    display: block; width: 20px; height: 2.5px;
+    background: #ffffff; margin: 2.5px 0; border-radius: 2px;
 }}
-
-/* ====== SIDEBAR PANEL ====== */
 #map-sidebar {{
-    position: fixed;
-    top: 14px;
-    right: 14px;
-    bottom: 14px;
-    width: 300px;
-    z-index: 9999;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    font-size: 13px;
-    color: #2c3e50;
-    overflow-y: auto;
-    transform: translateX(115%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: fixed; top: 16px; right: 16px; bottom: 16px; width: 318px;
+    z-index: 9999; background: var(--sm-surface); border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(15,23,42,0.18);
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    font-size: 13px; color: var(--sm-ink); overflow-y: auto;
+    transform: translateX(118%);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(15,23,42,0.05);
 }}
 #map-sidebar.open {{ transform: translateX(0); }}
-
-#map-sidebar::-webkit-scrollbar {{ width: 6px; }}
-#map-sidebar::-webkit-scrollbar-thumb {{ background: #ccc; border-radius: 3px; }}
-
+#map-sidebar::-webkit-scrollbar {{ width: 7px; }}
+#map-sidebar::-webkit-scrollbar-thumb {{ background: #cbd5e1; border-radius: 4px; }}
 .sidebar-header {{
-    padding: 16px 18px 12px;
-    border-bottom: 1px solid #eef0f3;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px 12px 0 0;
-    color: #fff;
+    padding: 20px 20px 18px; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, var(--sm-primary) 0%, var(--sm-primary-2) 100%);
+    border-radius: 16px 16px 0 0; color: #fff;
 }}
-.sidebar-header h2 {{
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
+.sidebar-header::after {{
+    content: ""; position: absolute; top: -40px; right: -40px;
+    width: 130px; height: 130px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
 }}
-.sidebar-header .stat-row {{
-    margin-top: 8px;
-    display: flex;
-    gap: 12px;
-    font-size: 11px;
-    opacity: 0.95;
+.sidebar-header h2 {{ margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.2px; }}
+.stat-row {{
+    margin-top: 16px; display: flex; gap: 8px; position: relative; z-index: 1;
 }}
-.sidebar-header .stat-row b {{ font-size: 14px; display: block; }}
-
-.sidebar-section {{
-    padding: 14px 18px;
-    border-bottom: 1px solid #eef0f3;
+.stat-card {{
+    flex: 1; background: rgba(255,255,255,0.14); border-radius: 10px;
+    padding: 9px 8px; text-align: center;
+    border: 1px solid rgba(255,255,255,0.18);
 }}
+.stat-card b {{ font-size: 18px; font-weight: 700; display: block; line-height: 1.1; }}
+.stat-card span {{ font-size: 9.5px; font-weight: 600; letter-spacing: 0.5px;
+    text-transform: uppercase; opacity: 0.85; display: block; margin-top: 3px; }}
+.sidebar-section {{ padding: 16px 20px; border-bottom: 1px solid var(--sm-border); }}
 .sidebar-section h4 {{
-    margin: 0 0 10px 0;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #6b7280;
+    margin: 0 0 11px 0; font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.9px; color: var(--sm-muted);
+    display: flex; align-items: center; gap: 7px;
 }}
-
-/* Segmented control for mode picker */
+.sidebar-section h4::before {{
+    content: ""; width: 3px; height: 12px; border-radius: 2px;
+    background: var(--sm-accent); display: inline-block;
+}}
 .seg-control {{
-    display: flex;
-    background: #f3f4f6;
-    border-radius: 8px;
-    padding: 3px;
-    gap: 3px;
+    display: flex; background: var(--sm-tint); border-radius: 10px; padding: 4px; gap: 4px;
+    border: 1px solid var(--sm-border);
 }}
 .seg-control label {{
-    flex: 1;
-    text-align: center;
-    padding: 7px 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.15s ease;
+    flex: 1; text-align: center; border-radius: 7px;
+    cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.15s ease;
 }}
 .seg-control input {{ display: none; }}
 .seg-control input:checked + span {{
-    background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-    color: #2c3e50;
-    font-weight: 600;
+    background: var(--sm-primary); box-shadow: 0 2px 6px rgba(12,74,110,0.28);
+    color: #fff; font-weight: 600;
 }}
 .seg-control span {{
-    display: block;
-    padding: 7px 8px;
-    border-radius: 6px;
-    color: #6b7280;
-    transition: all 0.15s ease;
+    display: block; padding: 8px 8px; border-radius: 7px;
+    color: var(--sm-muted); transition: all 0.15s ease;
 }}
-.seg-control label:hover span {{ color: #2c3e50; }}
-
-/* Color swatches */
+.seg-control label:hover span {{ color: var(--sm-ink); }}
 .swatch-row {{
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin: 6px 0;
+    display: flex; gap: 10px; align-items: center; margin: 8px 0;
+    padding: 8px 10px; background: var(--sm-tint); border-radius: 9px;
+    border: 1px solid var(--sm-border);
 }}
-.swatch-row label {{
-    flex: 1;
-    font-size: 12px;
-    color: #4b5563;
-}}
+.swatch-row label {{ flex: 1; font-size: 12.5px; font-weight: 500; color: #334155; }}
 .swatch-row input[type="color"] {{
-    width: 38px;
-    height: 28px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 2px;
-    background: #fff;
+    width: 42px; height: 30px; border: 1px solid var(--sm-border); border-radius: 7px;
+    cursor: pointer; padding: 2px; background: #fff;
 }}
-
-/* Slider */
-input[type="range"] {{ width: 100%; accent-color: #667eea; }}
-.slider-row {{ display: flex; align-items: center; gap: 10px; }}
+input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px; }}
+.slider-row {{
+    display: flex; align-items: center; gap: 12px;
+    padding: 6px 10px; background: var(--sm-tint); border-radius: 9px;
+    border: 1px solid var(--sm-border);
+}}
 .slider-value {{
-    min-width: 32px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #667eea;
+    min-width: 38px; font-size: 12.5px; font-weight: 700; color: var(--sm-accent);
     text-align: right;
 }}
-
-/* Export buttons */
 .btn {{
-    display: block;
-    width: 100%;
-    padding: 9px 12px;
-    margin: 6px 0;
-    background: #667eea;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    transition: all 0.15s ease;
+    display: block; width: 100%; padding: 11px 12px; margin: 8px 0 0;
+    background: var(--sm-primary); color: #fff; border: none; border-radius: 9px;
+    cursor: pointer; font-size: 12.5px; font-weight: 600; text-align: center;
+    text-decoration: none; transition: all 0.16s ease; letter-spacing: 0.2px;
 }}
-.btn:hover {{ background: #5568d3; transform: translateY(-1px); }}
-.btn.secondary {{ background: #fff; color: #667eea; border: 1.5px solid #667eea; }}
-.btn.secondary:hover {{ background: #f0f3ff; }}
-
-/* Reset */
-.spot-filter {{ display: none; margin-top: 10px; }}
+.btn:hover {{ background: var(--sm-primary-2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(12,74,110,0.25); }}
+.btn.secondary {{ background: #fff; color: var(--sm-primary); border: 1.5px solid var(--sm-border); }}
+.btn.secondary:hover {{ background: var(--sm-tint); border-color: var(--sm-accent); color: var(--sm-accent); }}
+.sidebar-foot {{
+    padding: 13px 20px; text-align: center; font-size: 10px; color: #94a3b8;
+    letter-spacing: 0.3px; background: var(--sm-tint); border-radius: 0 0 16px 16px;
+}}
+.spot-filter {{ display: none; margin-top: 12px; }}
 .spot-filter.show {{ display: block; }}
-
-/* ====== LEGEND ====== */
 #map-legend {{
-    position: absolute;
-    top: 16px;
-    left: 60px;
-    z-index: 1000;
-    background: #fff;
-    padding: 10px 14px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    font-size: 12px;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    min-width: 110px;
-    display: none;
+    position: absolute; top: 16px; left: 60px; z-index: 1000; background: #fff;
+    padding: 12px 16px; border-radius: 12px; box-shadow: 0 6px 24px rgba(15,23,42,0.15);
+    font-size: 12px; font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    min-width: 120px; display: none; border: 1px solid var(--sm-border);
 }}
 #map-legend h4 {{
-    margin: 0 0 8px 0;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: #6b7280;
-    text-align: center;
+    margin: 0 0 9px 0; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.7px; color: var(--sm-muted); text-align: center;
 }}
 .legend-item {{
-    display: flex;
-    align-items: center;
-    margin-bottom: 5px;
-    font-size: 12px;
-    color: #2c3e50;
+    display: flex; align-items: center; margin-bottom: 6px;
+    font-size: 12.5px; font-weight: 500; color: var(--sm-ink);
 }}
 .legend-icon {{
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    margin-right: 9px;
-    border: 1px solid rgba(0,0,0,0.15);
+    width: 15px; height: 15px; border-radius: 50%;
+    margin-right: 10px; border: 1px solid rgba(0,0,0,0.12);
 }}
-
 @media print {{
+    * {{
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }}
+    html, body {{ background: #fff !important; }}
     #map-sidebar, #sidebar-toggle-btn {{ display: none !important; }}
-    #map-legend {{ display: block !important; position: absolute; top: 10px; left: 10px; }}
-    .leaflet-control-zoom {{ display: none !important; }}
+    #map-legend {{
+        display: block !important; position: absolute; top: 10px; left: 10px;
+        background: #fff !important; border: 1px solid #ccc;
+    }}
+    .legend-icon {{ border: 1px solid #333 !important; }}
+    .leaflet-control-zoom, .leaflet-control-attribution {{ display: none !important; }}
+    .cluster-icon > div, .marker-cluster div {{ box-shadow: none !important; }}
 }}
 </style>
 
@@ -257,11 +189,11 @@ input[type="range"] {{ width: 100%; accent-color: #667eea; }}
 
 <div id="map-sidebar">
   <div class="sidebar-header">
-    <h2>🗺️ SpotMap Controls</h2>
+    <h2>SpotMap</h2>
     <div class="stat-row">
-      <div><b>{n_cases}</b>Cases</div>
-      <div><b>{n_controls}</b>Controls</div>
-      <div><b>{mode}</b>Zoom</div>
+      <div class="stat-card"><b>{n_cases}</b><span>Cases</span></div>
+      <div class="stat-card"><b>{n_controls}</b><span>Controls</span></div>
+      <div class="stat-card"><b>{mode}</b><span>Zoom</span></div>
     </div>
   </div>
 
@@ -319,9 +251,11 @@ input[type="range"] {{ width: 100%; accent-color: #667eea; }}
 
   <div class="sidebar-section">
     <h4>Export Map</h4>
-    <a class="btn" id="downloadPngLink">📷 Download PNG</a>
-    <a class="btn secondary" id="downloadPrintLink">🖨️ Print / Save PDF</a>
+    <a class="btn" id="downloadPngLink">Download PNG</a>
+    <a class="btn secondary" id="downloadPrintLink">Print / Save PDF</a>
   </div>
+
+  <div class="sidebar-foot">Generated with SpotMap &middot; spotmap</div>
 </div>
 
 <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
