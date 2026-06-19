@@ -128,12 +128,19 @@ def detect_outcome(df: pd.DataFrame, outcome_col: str = None, case_value: str = 
 
     if case_value is None:
         case_value = next((v for v in values if v in _CASE_VALUES), values[0] if len(values) else None)
+        if case_value is None:
+            raise ColumnNotFoundError(f"No values found in outcome column '{outcome_col}'.")
+        return outcome_col, case_value
 
-    if case_value is None:
-        raise ColumnNotFoundError(f"No values found in outcome column '{outcome_col}'.")
-
-    # Normalize case_value to lowercase so comparison is case-insensitive
-    return outcome_col, str(case_value).strip().lower()
+    # User supplied a case_value — normalize and verify it actually occurs in
+    # the column, otherwise every row would silently be treated as a control.
+    case_value = str(case_value).strip().lower()
+    if case_value not in values:
+        raise ColumnNotFoundError(
+            f"case_value '{case_value}' not found in outcome column "
+            f"'{outcome_col}'. Available values: {sorted(values)}"
+        )
+    return outcome_col, case_value
 
 
 def _read_data_file(path: str) -> pd.DataFrame:

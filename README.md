@@ -22,6 +22,25 @@ pip install spotmap
 
 ## Quick start
 
+### Interactive (no coding required)
+
+After installing, just run:
+
+```python
+from spotmap import spotmap_run
+
+spotmap_run()
+```
+
+SpotMap walks you through 5 quick prompts — choose your data file, confirm the
+latitude/longitude and outcome columns, and it builds the map for you. The map
+is saved as `spotmap.html` in your current folder (pass a different path with
+`spotmap_run("my_map.html")`).
+
+> `spotmap_run()` is interactive — it reads your answers from the keyboard, so
+> use it in a terminal or notebook. For automated scripts, use the Python API
+> below instead.
+
 ### Python API
 
 ```python
@@ -66,7 +85,7 @@ SpotMap(
     state_shp=None,                 # custom state boundary (shapefile/GeoPackage)
     district_shp=None,              # custom district boundary
     lat_col=None,                   # override auto-detection
-    lon_col=None,
+    long_col=None,
     outcome_col=None,
     case_value=None,                # value that means "case" in outcome_col
     count_cutoff=2,                 # districts ≤ cutoff → district zoom
