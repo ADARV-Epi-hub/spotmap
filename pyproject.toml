@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spotmap"
-version = "0.1.14"
+version = "0.1.15"
 description = "Interactive epidemiological spot maps for India"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -29,6 +29,9 @@ dependencies = [
   "shapely>=2.0",
   "openpyxl>=3.1",
 ]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
 
 [project.urls]
 Homepage = "https://github.com/ADARV-Epi-hub/spotmap"
