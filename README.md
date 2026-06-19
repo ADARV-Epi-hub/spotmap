@@ -24,22 +24,30 @@ pip install spotmap
 
 ### Interactive (no coding required)
 
-After installing, just run:
+The easiest way — works great in **Google Colab** or a Jupyter notebook. Paste
+these two lines into a cell and run it:
 
 ```python
+!pip install spotmap
 from spotmap import spotmap_run
-
 spotmap_run()
 ```
 
-SpotMap walks you through 5 quick prompts — choose your data file, confirm the
-latitude/longitude and outcome columns, and it builds the map for you. The map
-is saved as `spotmap.html` in your current folder (pass a different path with
+SpotMap then walks you through a few simple prompts:
+
+1. **Upload your data file** (in Colab an upload button appears; elsewhere it
+   asks for the file path).
+2. Confirm which columns hold latitude, longitude, and the case/control outcome
+   (SpotMap pre-selects its best guess).
+3. Pick which value means "case".
+
+The finished map is **shown right in the notebook cell** — no need to hunt for a
+file — and is also saved as `spotmap.html` (pass a different name with
 `spotmap_run("my_map.html")`).
 
-> `spotmap_run()` is interactive — it reads your answers from the keyboard, so
-> use it in a terminal or notebook. For automated scripts, use the Python API
-> below instead.
+> In a plain terminal, `spotmap_run()` reads your answers from the keyboard and
+> saves an HTML file to open in your browser. For automated scripts, use the
+> Python API below instead.
 
 ### Python API
 

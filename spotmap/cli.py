@@ -4,12 +4,31 @@ import argparse
 import sys
 
 
+_EPILOG = """\
+Examples:
+  spotmap                            launch the guided wizard (easiest)
+  spotmap data.csv                   build a map from data.csv
+  spotmap data.csv -o my_map.html    choose where to save the map
+
+In Python or Google Colab:
+  from spotmap import spotmap_run
+  spotmap_run()
+"""
+
+
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="spotmap",
         description="Generate an interactive epidemiological spot map for India.",
+        epilog=_EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    p.add_argument("csv", help="Path to the input CSV file with point data.")
+    p.add_argument(
+        "csv",
+        nargs="?",
+        default=None,
+        help="Path to your data file (CSV/Excel). Omit it to launch the guided wizard.",
+    )
     p.add_argument(
         "-o", "--output",
         default="spotmap_output.html",
@@ -46,10 +65,16 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv=None) -> None:
-    from .map_builder import SpotMap
-
     parser = _build_parser()
     args = parser.parse_args(argv)
+
+    # No data file given → launch the friendly step-by-step wizard.
+    if args.csv is None:
+        from .interactive import spotmap_run
+        spotmap_run(args.output)
+        return
+
+    from .map_builder import SpotMap
 
     try:
         SpotMap(
