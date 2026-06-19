@@ -16,6 +16,29 @@ from .map_builder import SpotMap
 
 
 # =========================================================
+# ENVIRONMENT DETECTION (Colab / Jupyter)
+# =========================================================
+
+def _in_colab() -> bool:
+    """True when running inside a Google Colab notebook."""
+    try:
+        import google.colab  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
+def _in_notebook() -> bool:
+    """True when running inside any Jupyter/Colab notebook (has a rich display)."""
+    try:
+        from IPython import get_ipython
+        ip = get_ipython()
+        return ip is not None and hasattr(ip, "kernel")
+    except Exception:
+        return False
+
+
+# =========================================================
 # PRETTY OUTPUT HELPERS
 # =========================================================
 
@@ -156,19 +179,42 @@ def _preview_dataframe(df: pd.DataFrame, n_rows: int = 3) -> None:
 _SUPPORTED_EXT = (".csv", ".xlsx", ".xls", ".xlsm", ".xlsb", ".ods", ".tsv", ".txt")
 
 
+def _colab_pick_file():
+    """Show Colab's upload button and return the uploaded filename (or None)."""
+    from google.colab import files  # only importable inside Colab
+    print("⬆️  Click 'Choose Files' below and pick your data file...")
+    uploaded = files.upload()
+    if not uploaded:
+        return None
+    # files.upload() writes each file to the current working directory, so the
+    # key (the original filename) is a valid path we can read straight away.
+    return list(uploaded.keys())[0]
+
+
 def _step_load_csv() -> pd.DataFrame:
     """Step 1 — load the data file (CSV / Excel / TSV), with retry on errors."""
+    colab = _in_colab()
     print("─" * 55)
-    print("📁 Step 1 — Where is your data file?")
-    print("   Supported: CSV (.csv), Excel (.xlsx, .xls), TSV")
-    print("   Tip: you can paste the full path, or drag-drop the file here.")
+    if colab:
+        print("📁 Step 1 — Upload your data file")
+        print("   Supported: CSV (.csv), Excel (.xlsx, .xls), TSV")
+    else:
+        print("📁 Step 1 — Where is your data file?")
+        print("   Supported: CSV (.csv), Excel (.xlsx, .xls), TSV")
+        print("   Tip: you can paste the full path, or drag-drop the file here.")
     print("─" * 55)
     while True:
-        path = _ask("Path to your file")
-        if not os.path.exists(path):
-            _err(f"File not found: {path}")
-            _info("Tip: paste the full path, or drag the file into the terminal.")
-            continue
+        if colab:
+            path = _colab_pick_file()
+            if not path:
+                _err("No file was uploaded. Run the cell again and choose a file.")
+                raise SystemExit(0)
+        else:
+            path = _ask("Path to your file")
+            if not os.path.exists(path):
+                _err(f"File not found: {path}")
+                _info("Tip: paste the full path, or drag the file into the terminal.")
+                continue
         lower = path.lower()
         if not lower.endswith(_SUPPORTED_EXT):
             _warn(f"Unrecognised file type. Supported: {', '.join(_SUPPORTED_EXT)}")
@@ -407,16 +453,17 @@ def _step_build_map(df, lat_col, long_col, outcome_col, case_value, output_path)
     print("\n⚙️  Building the map...")
     all_cases = outcome_col == _NO_OUTCOME
     try:
-        SpotMap(
+        sm = SpotMap(
             df,
             lat_col=lat_col,
             long_col=long_col,
             outcome_col=None if all_cases else outcome_col,
             case_value=None if all_cases else case_value,
             all_cases=all_cases,
-        ).build().save(output_path)
+        ).build()
+        sm.save(output_path)
         _ok(f"Map saved to: {output_path}")
-        return True
+        return sm
     except NoCasePointsError:
         _err(f"No rows found with outcome = '{case_value}'.")
         values = (
@@ -483,15 +530,15 @@ def spotmap_run(output_path: str = _DEFAULT_OUTPUT) -> None:
 
     # Step 4 — build immediately (no confirmation needed)
     while True:
-        success = _step_build_map(
+        sm = _step_build_map(
             df, lat_col, long_col, outcome_col, case_value, output_path
         )
-        if success:
+        if sm:
             break
         retry = _ask("\nTry again with different settings? (y/n)", default="n")
         if not retry.lower().startswith("y"):
             print("\nExiting. No map was created.")
-            return
+            return None
         # Re-prompt for whatever they want to fix
         print("\nLet's redo the setup:")
         lat_col, long_col, outcome_col = _step_pick_columns(df)
@@ -502,7 +549,19 @@ def spotmap_run(output_path: str = _DEFAULT_OUTPUT) -> None:
             case_value = _step_pick_case_value(df, outcome_col)
 
     _line()
-    print(f"\n🗺️  Open this file in your browser:\n   {os.path.abspath(output_path)}\n")
+    if _in_notebook():
+        # In Colab/Jupyter, show the map right in the output cell so the user
+        # doesn't have to hunt for an HTML file they can't open.
+        print("\n🗺️  Here's your map:\n")
+        try:
+            from IPython.display import display
+            display(sm.map)
+        except Exception:  # noqa: BLE001 — fall back to the file message
+            print(f"Saved to: {os.path.abspath(output_path)}")
+        if _in_colab():
+            _info(f"A copy was also saved as '{output_path}' (Files panel on the left).")
+    else:
+        print(f"\n🗺️  Open this file in your browser:\n   {os.path.abspath(output_path)}\n")
     _line()
 
 
