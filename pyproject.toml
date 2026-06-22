@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spotmap"
-version = "0.1.22"
+version = "0.1.23"
 description = "Interactive epidemiological spot maps for India"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
 authors = [
   { name = "Muniraj Mallesan", email = "adarv@nieicmr.org.in" },
-  { name = "Sharan Murali" },
+  { name = "Dr. Sharan Murali" },
   { name = "Manikandan K" },
   { name = "Shanmuga Sundharam" },
   { name = "Yogita Chaudhary" },
