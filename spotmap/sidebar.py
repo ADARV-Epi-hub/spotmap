@@ -155,11 +155,35 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
     margin-right: 10px; border: 1px solid rgba(0,0,0,0.12);
 }}
 .toggle-row {{
-    display: flex; align-items: center; gap: 9px; padding: 8px 10px; margin: 6px 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 12px; margin: 6px 0;
     background: var(--sm-tint); border-radius: 9px; border: 1px solid var(--sm-border);
-    font-size: 12.5px; font-weight: 500; color: #334155; cursor: pointer;
+    font-size: 12.5px; font-weight: 500; color: #334155;
 }}
-.toggle-row input {{ width: 16px; height: 16px; accent-color: var(--sm-accent); cursor: pointer; }}
+.toggle-state {{
+    font-size: 11px; font-weight: 700; color: var(--sm-muted);
+    text-transform: uppercase; letter-spacing: 0.5px; min-width: 22px; text-align: right;
+}}
+.switch {{ position: relative; display: inline-block; width: 42px; height: 22px; flex: 0 0 auto; }}
+.switch input {{ opacity: 0; width: 0; height: 0; margin: 0; }}
+.slider-toggle {{
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background: #cbd5e1; border-radius: 22px; transition: 0.2s;
+}}
+.slider-toggle::before {{
+    content: ""; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}}
+.switch input:checked + .slider-toggle {{ background: var(--sm-primary); }}
+.switch input:checked + .slider-toggle::before {{ transform: translateX(20px); }}
+#map-credit {{
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    z-index: 1000; background: rgba(255,255,255,0.92); color: var(--sm-primary);
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.2px;
+    padding: 5px 13px; border-radius: 8px; border: 1px solid var(--sm-border);
+    box-shadow: 0 2px 8px rgba(15,23,42,0.12); pointer-events: none; white-space: nowrap;
+}}
 @media print {{
     * {{
         -webkit-print-color-adjust: exact !important;
@@ -181,6 +205,8 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
 <div id="sidebar-toggle-btn" title="Map options">
   <div><span></span><span></span><span></span></div>
 </div>
+
+<div id="map-credit">Interactive spot maps for India &middot; created by ADARV</div>
 
 <div id="map-legend">
     <h4>Legend</h4>
@@ -258,7 +284,16 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
 
   <div class="sidebar-section">
     <h4>Map Labels</h4>
-    <label class="toggle-row"><input type="checkbox" id="toggleLabels"> Place names (OpenStreetMap)</label>
+    <div class="toggle-row">
+      <span>Place names</span>
+      <span style="display:flex; align-items:center; gap:9px;">
+        <span class="toggle-state" id="labelsState">Off</span>
+        <label class="switch">
+          <input type="checkbox" id="toggleLabels">
+          <span class="slider-toggle"></span>
+        </label>
+      </span>
+    </div>
   </div>
 
   <div class="sidebar-section">
@@ -282,6 +317,10 @@ window.addEventListener('load', function() {{
   // Move legend inside map container so screenshoter captures it
   var legendDiv = document.getElementById('map-legend');
   mapObj.getContainer().appendChild(legendDiv);
+
+  // Move the ADARV credit caption inside the map container too
+  var creditDiv = document.getElementById('map-credit');
+  if (creditDiv) mapObj.getContainer().appendChild(creditDiv);
 
   var simpleMapScreenshoter = L.simpleMapScreenshoter({{
       hidden: true,
@@ -434,6 +473,7 @@ window.addEventListener('load', function() {{
     var show = document.getElementById('toggleLabels').checked;
     if (show) {{ if (!mapObj.hasLayer(labelsLayer)) mapObj.addLayer(labelsLayer); }}
     else {{ if (mapObj.hasLayer(labelsLayer)) mapObj.removeLayer(labelsLayer); }}
+    document.getElementById('labelsState').textContent = show ? 'On' : 'Off';
   }}
   document.getElementById('toggleLabels').addEventListener('change', applyLabelLogic);
   applyLabelLogic();

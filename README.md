@@ -130,6 +130,23 @@ usage: spotmap [-h] [-o OUTPUT] [--state-shp STATE_SHP]
 
 ---
 
+## Team
+
+SpotMap is developed by the **ADARV** team:
+
+| Name | Role |
+|---|---|
+| Muniraj Mallesan | Maintainer |
+| Sharan Murali | Team Lead |
+| Manikandan K | |
+| Shanmuga Sundharam | |
+| Yogita Chaudhary | |
+| Barath U | |
+| Balaji S | |
+| Deepana R | |
+
+---
+
 ## License
 
-MIT © Tharun Mallesan
+MIT © ADARV
