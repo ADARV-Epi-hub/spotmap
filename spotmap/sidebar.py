@@ -302,7 +302,7 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
     <a class="btn secondary" id="downloadPrintLink">Print / Save PDF</a>
   </div>
 
-  <div class="sidebar-foot">Generated with SpotMap &middot; spotmap</div>
+  <div class="sidebar-foot">Interactive spot maps for India &middot; created by ADARV</div>
 </div>
 
 <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
