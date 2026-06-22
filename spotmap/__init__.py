@@ -4,7 +4,7 @@ from .exceptions import ColumnNotFoundError, NoCasePointsError, SpotMapError
 from .interactive import run_interactive, spotmap_run
 from .map_builder import SpotMap
 
-__version__ = "0.1.21"
+__version__ = "0.1.22"
 __all__ = [
     "SpotMap",
     "spotmap_run",
@@ -20,7 +20,7 @@ print(
     f"\n"
     f"SpotMap v{__version__} - interactive spot maps for India (created by ADARV)\n"
     f"\n"
-    f"  To build your map, run these two lines:\n"
-    f"      from spotmap import spotmap_run\n"
-    f"      spotmap_run()\n"
+    f"To build your map, run these two lines:\n"
+    f"from spotmap import spotmap_run\n"
+    f"spotmap_run()\n"
 )
