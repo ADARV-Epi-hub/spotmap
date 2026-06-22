@@ -137,7 +137,7 @@ SpotMap is developed by the **ADARV** team:
 | Name | Role |
 |---|---|
 | Muniraj Mallesan | Maintainer |
-| Sharan Murali | Team Lead |
+| Dr. Sharan Murali | Team Lead |
 | Manikandan K | |
 | Shanmuga Sundharam | |
 | Yogita Chaudhary | |
