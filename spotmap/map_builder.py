@@ -4,7 +4,12 @@ import folium
 import pandas as pd
 
 from .exceptions import NoCasePointsError
-from .layers import add_boundary_layers, add_marker_layers, add_label_layers
+from .layers import (
+    add_base_map,
+    add_boundary_layers,
+    add_marker_layers,
+    add_osm_labels_overlay,
+)
 from .loader import load_csv
 from .sidebar import build_sidebar_html
 from .spatial import (
@@ -150,24 +155,24 @@ class SpotMap:
         states_sub = crop_geodataframe(affected_states, bounds, self.margin_deg)
         districts_sub = crop_geodataframe(affected_districts, bounds, self.margin_deg)
 
-        # 6. Init map
+        # 6. Init map (no built-in tiles — we add a label-free base ourselves
+        #    so place labels can be toggled independently)
         m = folium.Map(
             location=[points_cases.geometry.y.mean(), points_cases.geometry.x.mean()],
             zoom_start=5,
-            tiles="CartoDB positron",
+            tiles=None,
             zoom_snap=0.1,
             zoom_delta=0.1,
             max_zoom=25,
             scroll_wheel_zoom=True,
         )
+        add_base_map(m)
 
         # 7. Boundary layers
         add_boundary_layers(m, india_sub, states_sub, districts_sub)
 
-        # 7a. Label layers (toggled from the sidebar)
-        state_labels, district_labels = add_label_layers(
-            m, states_sub, districts_sub, state_name_col, district_name_col
-        )
+        # 7a. OpenStreetMap place-labels overlay (toggled from the sidebar)
+        labels_layer = add_osm_labels_overlay(m)
 
         # 7b. Auto-zoom to the most relevant view
         import numpy as np
@@ -214,8 +219,7 @@ class SpotMap:
             dots_name=cluster.get_name(),
             pins_cases_name=pins_cases.get_name(),
             pins_controls_name=pins_controls.get_name(),
-            state_labels_name=state_labels.get_name(),
-            district_labels_name=district_labels.get_name(),
+            labels_name=labels_layer.get_name(),
             mode=mode,
             n_cases=len(points_cases),
             n_controls=len(points_controls),
