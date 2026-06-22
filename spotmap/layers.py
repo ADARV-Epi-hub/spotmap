@@ -153,45 +153,49 @@ def add_marker_layers(
     return cluster, pins_cases_layer, pins_controls_layer
 
 
-def add_label_layers(
-    m: folium.Map,
-    states: gpd.GeoDataFrame,
-    districts: gpd.GeoDataFrame,
-    state_name_col: str,
-    district_name_col: str,
-):
-    """Add toggleable text-label layers for state and district names.
+_CARTO_NOLABELS = "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png"
+_CARTO_ONLYLABELS = "https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png"
+_CARTO_ATTR = (
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
+    'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+)
 
-    Each label sits at its polygon's representative point (guaranteed inside
-    the shape).  The layers are returned so the sidebar can switch them on/off;
-    they start hidden (the sidebar JS removes them on load).
+
+def add_base_map(m: folium.Map) -> None:
+    """Add a clean, label-free base map so place labels can be toggled.
+
+    Rendered by CARTO from OpenStreetMap data.
+    """
+    folium.TileLayer(
+        tiles=_CARTO_NOLABELS,
+        attr=_CARTO_ATTR,
+        name="Base Map",
+        control=False,
+        subdomains="abcd",
+        max_zoom=20,
+    ).add_to(m)
+
+
+def add_osm_labels_overlay(m: folium.Map):
+    """Add a toggleable place-name labels overlay sourced from OpenStreetMap.
+
+    These are transparent, labels-only tiles (state / district / city / town
+    names, rendered by CARTO from OpenStreetMap data) drawn on top of the
+    no-labels base map.  Names appear automatically by zoom level — no
+    shapefile attributes are used.  The returned layer is switched on/off
+    from the sidebar; it starts hidden (the sidebar JS removes it on load).
 
     Returns:
-        (state_labels_layer, district_labels_layer)
+        the labels TileLayer
     """
-    state_labels = folium.FeatureGroup(name="State Labels")
-    district_labels = folium.FeatureGroup(name="District Labels")
-
-    def _add(gdf, name_col, layer, css_class):
-        if gdf is None or gdf.empty:
-            return
-        for _, row in gdf.iterrows():
-            name = row.get(name_col)
-            geom = row.geometry
-            if not name or geom is None or geom.is_empty:
-                continue
-            pt = geom.representative_point()
-            icon = folium.DivIcon(
-                html=f'<div class="{css_class}">{name}</div>',
-                class_name="spotmap-label-wrap",
-                icon_size=(0, 0),
-                icon_anchor=(0, 0),
-            )
-            folium.Marker(location=[pt.y, pt.x], icon=icon).add_to(layer)
-
-    _add(states, state_name_col, state_labels, "spotmap-state-label")
-    _add(districts, district_name_col, district_labels, "spotmap-district-label")
-
-    m.add_child(state_labels)
-    m.add_child(district_labels)
-    return state_labels, district_labels
+    labels = folium.TileLayer(
+        tiles=_CARTO_ONLYLABELS,
+        attr=_CARTO_ATTR,
+        name="Place Labels (OpenStreetMap)",
+        overlay=True,
+        control=False,
+        subdomains="abcd",
+        max_zoom=20,
+    )
+    labels.add_to(m)
+    return labels

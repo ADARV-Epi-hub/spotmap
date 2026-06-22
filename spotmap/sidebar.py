@@ -6,8 +6,7 @@ def build_sidebar_html(
     dots_name: str,
     pins_cases_name: str,
     pins_controls_name: str,
-    state_labels_name: str,
-    district_labels_name: str,
+    labels_name: str,
     mode: str,
     n_cases: int,
     n_controls: int,
@@ -155,18 +154,6 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
     width: 15px; height: 15px; border-radius: 50%;
     margin-right: 10px; border: 1px solid rgba(0,0,0,0.12);
 }}
-.spotmap-label-wrap {{ background: transparent !important; border: none !important; }}
-.spotmap-state-label {{
-    transform: translate(-50%, -50%); display: inline-block; white-space: nowrap;
-    font-weight: 700; font-size: 12px; color: #1e293b; text-transform: uppercase;
-    letter-spacing: 0.3px; pointer-events: none;
-    text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
-}}
-.spotmap-district-label {{
-    transform: translate(-50%, -50%); display: inline-block; white-space: nowrap;
-    font-weight: 600; font-size: 10.5px; color: #334155; pointer-events: none;
-    text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff, 0 0 2px #fff;
-}}
 .toggle-row {{
     display: flex; align-items: center; gap: 9px; padding: 8px 10px; margin: 6px 0;
     background: var(--sm-tint); border-radius: 9px; border: 1px solid var(--sm-border);
@@ -271,8 +258,7 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
 
   <div class="sidebar-section">
     <h4>Map Labels</h4>
-    <label class="toggle-row"><input type="checkbox" id="toggleStateLabels"> State names</label>
-    <label class="toggle-row"><input type="checkbox" id="toggleDistrictLabels"> District names</label>
+    <label class="toggle-row"><input type="checkbox" id="toggleLabels"> Place names (OpenStreetMap)</label>
   </div>
 
   <div class="sidebar-section">
@@ -291,8 +277,7 @@ window.addEventListener('load', function() {{
   var dotsLayer         = {dots_name};
   var pinsCasesLayer    = {pins_cases_name};
   var pinsControlsLayer = {pins_controls_name};
-  var stateLabelsLayer    = {state_labels_name};
-  var districtLabelsLayer = {district_labels_name};
+  var labelsLayer = {labels_name};
 
   // Move legend inside map container so screenshoter captures it
   var legendDiv = document.getElementById('map-legend');
@@ -444,17 +429,13 @@ window.addEventListener('load', function() {{
     }}, 500);
   }});
 
-  // === Map labels (state / district) — default off ===
+  // === OpenStreetMap place labels — default off ===
   function applyLabelLogic() {{
-    var showStates    = document.getElementById('toggleStateLabels').checked;
-    var showDistricts = document.getElementById('toggleDistrictLabels').checked;
-    if (showStates) {{ if (!mapObj.hasLayer(stateLabelsLayer)) mapObj.addLayer(stateLabelsLayer); }}
-    else {{ if (mapObj.hasLayer(stateLabelsLayer)) mapObj.removeLayer(stateLabelsLayer); }}
-    if (showDistricts) {{ if (!mapObj.hasLayer(districtLabelsLayer)) mapObj.addLayer(districtLabelsLayer); }}
-    else {{ if (mapObj.hasLayer(districtLabelsLayer)) mapObj.removeLayer(districtLabelsLayer); }}
+    var show = document.getElementById('toggleLabels').checked;
+    if (show) {{ if (!mapObj.hasLayer(labelsLayer)) mapObj.addLayer(labelsLayer); }}
+    else {{ if (mapObj.hasLayer(labelsLayer)) mapObj.removeLayer(labelsLayer); }}
   }}
-  document.getElementById('toggleStateLabels').addEventListener('change', applyLabelLogic);
-  document.getElementById('toggleDistrictLabels').addEventListener('change', applyLabelLogic);
+  document.getElementById('toggleLabels').addEventListener('change', applyLabelLogic);
   applyLabelLogic();
 
   applyLayerLogic();

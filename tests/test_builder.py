@@ -66,22 +66,21 @@ def test_normal_case_control_builds(tmp_path):
     assert out.exists()
 
 
-def test_map_has_label_toggles():
+def test_map_has_osm_labels_toggle():
     df = pd.DataFrame({
         "lat": [11.0, 11.1, 28.6, 28.7],
         "lon": [76.9, 77.0, 77.2, 77.3],
         "case_control": ["case", "control", "case", "control"],
     })
     html = SpotMap(df).build().map.get_root().render()
-    # Sidebar controls + JS wiring for the state/district label toggles
-    assert "toggleStateLabels" in html
-    assert "toggleDistrictLabels" in html
+    # Sidebar toggle + JS wiring for the OpenStreetMap labels overlay
+    assert "toggleLabels" in html
     assert "applyLabelLogic" in html
-    assert "var stateLabelsLayer" in html
-    assert "var districtLabelsLayer" in html
-    # Actual label markers were rendered (more than just the CSS rule)
-    assert html.count("spotmap-state-label") > 1
-    assert html.count("spotmap-district-label") > 1
+    assert "var labelsLayer" in html
+    # The OSM/CARTO labels-only tile overlay is present, and the base map is
+    # the no-labels variant (so labels are actually toggleable)
+    assert "light_only_labels" in html
+    assert "light_nolabels" in html
 
 
 def test_save_before_build_raises():
