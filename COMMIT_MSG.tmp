@@ -1,0 +1,12 @@
+Release 0.1.22: labels toggle switch, ADARV credit, team authors
+
+- Replace the labels checkbox with a sliding on/off toggle switch (ADARV
+  navy when on, grey when off) plus a live On/Off status label.
+- Add a credit caption at the bottom of the map ("Interactive spot maps
+  for India - created by ADARV"), included in PNG/PDF exports.
+- Credit the ADARV team: add all members to pyproject authors/maintainers
+  (shown on PyPI), a Team section in the README, and a new AUTHORS.md.
+- Update copyright holder to ADARV (LICENSE + README).
+- Bump version 0.1.20 -> 0.1.22.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
