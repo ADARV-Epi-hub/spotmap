@@ -4,13 +4,23 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spotmap"
-version = "0.1.20"
+version = "0.1.21"
 description = "Interactive epidemiological spot maps for India"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
 authors = [
-  { name = "Tharun Mallesan", email = "tharunmallesan@gmail.com" }
+  { name = "Muniraj Mallesan", email = "adarv@nieicmr.org.in" },
+  { name = "Sharan Murali" },
+  { name = "Manikandan K" },
+  { name = "Shanmuga Sundharam" },
+  { name = "Yogita Chaudhary" },
+  { name = "Barath U" },
+  { name = "Balaji S" },
+  { name = "Deepana R" },
+]
+maintainers = [
+  { name = "Muniraj Mallesan", email = "adarv@nieicmr.org.in" },
 ]
 keywords = ["epidemiology", "spot map", "india", "geospatial", "folium", "case-control"]
 classifiers = [
