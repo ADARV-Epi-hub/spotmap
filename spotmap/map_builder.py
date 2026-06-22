@@ -4,7 +4,7 @@ import folium
 import pandas as pd
 
 from .exceptions import NoCasePointsError
-from .layers import add_boundary_layers, add_marker_layers
+from .layers import add_boundary_layers, add_marker_layers, add_label_layers
 from .loader import load_csv
 from .sidebar import build_sidebar_html
 from .spatial import (
@@ -164,6 +164,11 @@ class SpotMap:
         # 7. Boundary layers
         add_boundary_layers(m, india_sub, states_sub, districts_sub)
 
+        # 7a. Label layers (toggled from the sidebar)
+        state_labels, district_labels = add_label_layers(
+            m, states_sub, districts_sub, state_name_col, district_name_col
+        )
+
         # 7b. Auto-zoom to the most relevant view
         import numpy as np
         n_states_uniq = len(unique_state_names)
@@ -209,6 +214,8 @@ class SpotMap:
             dots_name=cluster.get_name(),
             pins_cases_name=pins_cases.get_name(),
             pins_controls_name=pins_controls.get_name(),
+            state_labels_name=state_labels.get_name(),
+            district_labels_name=district_labels.get_name(),
             mode=mode,
             n_cases=len(points_cases),
             n_controls=len(points_controls),

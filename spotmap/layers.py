@@ -151,3 +151,47 @@ def add_marker_layers(
         folium.Marker(location=[lat, lon], popup=popup).add_to(pins_controls_layer)
 
     return cluster, pins_cases_layer, pins_controls_layer
+
+
+def add_label_layers(
+    m: folium.Map,
+    states: gpd.GeoDataFrame,
+    districts: gpd.GeoDataFrame,
+    state_name_col: str,
+    district_name_col: str,
+):
+    """Add toggleable text-label layers for state and district names.
+
+    Each label sits at its polygon's representative point (guaranteed inside
+    the shape).  The layers are returned so the sidebar can switch them on/off;
+    they start hidden (the sidebar JS removes them on load).
+
+    Returns:
+        (state_labels_layer, district_labels_layer)
+    """
+    state_labels = folium.FeatureGroup(name="State Labels")
+    district_labels = folium.FeatureGroup(name="District Labels")
+
+    def _add(gdf, name_col, layer, css_class):
+        if gdf is None or gdf.empty:
+            return
+        for _, row in gdf.iterrows():
+            name = row.get(name_col)
+            geom = row.geometry
+            if not name or geom is None or geom.is_empty:
+                continue
+            pt = geom.representative_point()
+            icon = folium.DivIcon(
+                html=f'<div class="{css_class}">{name}</div>',
+                class_name="spotmap-label-wrap",
+                icon_size=(0, 0),
+                icon_anchor=(0, 0),
+            )
+            folium.Marker(location=[pt.y, pt.x], icon=icon).add_to(layer)
+
+    _add(states, state_name_col, state_labels, "spotmap-state-label")
+    _add(districts, district_name_col, district_labels, "spotmap-district-label")
+
+    m.add_child(state_labels)
+    m.add_child(district_labels)
+    return state_labels, district_labels
