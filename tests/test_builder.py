@@ -66,6 +66,24 @@ def test_normal_case_control_builds(tmp_path):
     assert out.exists()
 
 
+def test_map_has_label_toggles():
+    df = pd.DataFrame({
+        "lat": [11.0, 11.1, 28.6, 28.7],
+        "lon": [76.9, 77.0, 77.2, 77.3],
+        "case_control": ["case", "control", "case", "control"],
+    })
+    html = SpotMap(df).build().map.get_root().render()
+    # Sidebar controls + JS wiring for the state/district label toggles
+    assert "toggleStateLabels" in html
+    assert "toggleDistrictLabels" in html
+    assert "applyLabelLogic" in html
+    assert "var stateLabelsLayer" in html
+    assert "var districtLabelsLayer" in html
+    # Actual label markers were rendered (more than just the CSS rule)
+    assert html.count("spotmap-state-label") > 1
+    assert html.count("spotmap-district-label") > 1
+
+
 def test_save_before_build_raises():
     df = pd.DataFrame({
         "lat": [11.0], "lon": [76.9], "case_control": ["case"],

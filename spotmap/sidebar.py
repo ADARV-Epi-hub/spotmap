@@ -6,6 +6,8 @@ def build_sidebar_html(
     dots_name: str,
     pins_cases_name: str,
     pins_controls_name: str,
+    state_labels_name: str,
+    district_labels_name: str,
     mode: str,
     n_cases: int,
     n_controls: int,
@@ -16,9 +18,9 @@ def build_sidebar_html(
     return f"""
 <style>
 :root {{
-    --sm-primary: #0c4a6e;
-    --sm-primary-2: #0e7490;
-    --sm-accent: #0891b2;
+    --sm-primary: #1b2a5e;
+    --sm-primary-2: #2a3d7a;
+    --sm-accent: #2563eb;
     --sm-ink: #0f172a;
     --sm-muted: #64748b;
     --sm-border: #e2e8f0;
@@ -28,11 +30,11 @@ def build_sidebar_html(
 #sidebar-toggle-btn {{
     position: fixed; top: 16px; right: 16px; z-index: 10000;
     width: 44px; height: 44px; background: var(--sm-primary); border-radius: 10px;
-    box-shadow: 0 4px 14px rgba(12,74,110,0.35); display: flex;
+    box-shadow: 0 4px 14px rgba(27,42,94,0.35); display: flex;
     align-items: center; justify-content: center; cursor: pointer;
     user-select: none; transition: all 0.18s ease;
 }}
-#sidebar-toggle-btn:hover {{ background: var(--sm-primary-2); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(12,74,110,0.45); }}
+#sidebar-toggle-btn:hover {{ background: var(--sm-primary-2); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(27,42,94,0.45); }}
 #sidebar-toggle-btn span {{
     display: block; width: 20px; height: 2.5px;
     background: #ffffff; margin: 2.5px 0; border-radius: 2px;
@@ -92,7 +94,7 @@ def build_sidebar_html(
 }}
 .seg-control input {{ display: none; }}
 .seg-control input:checked + span {{
-    background: var(--sm-primary); box-shadow: 0 2px 6px rgba(12,74,110,0.28);
+    background: var(--sm-primary); box-shadow: 0 2px 6px rgba(27,42,94,0.28);
     color: #fff; font-weight: 600;
 }}
 .seg-control span {{
@@ -126,7 +128,7 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
     cursor: pointer; font-size: 12.5px; font-weight: 600; text-align: center;
     text-decoration: none; transition: all 0.16s ease; letter-spacing: 0.2px;
 }}
-.btn:hover {{ background: var(--sm-primary-2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(12,74,110,0.25); }}
+.btn:hover {{ background: var(--sm-primary-2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,42,94,0.25); }}
 .btn.secondary {{ background: #fff; color: var(--sm-primary); border: 1.5px solid var(--sm-border); }}
 .btn.secondary:hover {{ background: var(--sm-tint); border-color: var(--sm-accent); color: var(--sm-accent); }}
 .sidebar-foot {{
@@ -153,6 +155,24 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
     width: 15px; height: 15px; border-radius: 50%;
     margin-right: 10px; border: 1px solid rgba(0,0,0,0.12);
 }}
+.spotmap-label-wrap {{ background: transparent !important; border: none !important; }}
+.spotmap-state-label {{
+    transform: translate(-50%, -50%); display: inline-block; white-space: nowrap;
+    font-weight: 700; font-size: 12px; color: #1e293b; text-transform: uppercase;
+    letter-spacing: 0.3px; pointer-events: none;
+    text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+}}
+.spotmap-district-label {{
+    transform: translate(-50%, -50%); display: inline-block; white-space: nowrap;
+    font-weight: 600; font-size: 10.5px; color: #334155; pointer-events: none;
+    text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff, 0 0 2px #fff;
+}}
+.toggle-row {{
+    display: flex; align-items: center; gap: 9px; padding: 8px 10px; margin: 6px 0;
+    background: var(--sm-tint); border-radius: 9px; border: 1px solid var(--sm-border);
+    font-size: 12.5px; font-weight: 500; color: #334155; cursor: pointer;
+}}
+.toggle-row input {{ width: 16px; height: 16px; accent-color: var(--sm-accent); cursor: pointer; }}
 @media print {{
     * {{
         -webkit-print-color-adjust: exact !important;
@@ -250,6 +270,12 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
   </div>
 
   <div class="sidebar-section">
+    <h4>Map Labels</h4>
+    <label class="toggle-row"><input type="checkbox" id="toggleStateLabels"> State names</label>
+    <label class="toggle-row"><input type="checkbox" id="toggleDistrictLabels"> District names</label>
+  </div>
+
+  <div class="sidebar-section">
     <h4>Export Map</h4>
     <a class="btn" id="downloadPngLink">Download PNG</a>
     <a class="btn secondary" id="downloadPrintLink">Print / Save PDF</a>
@@ -265,6 +291,8 @@ window.addEventListener('load', function() {{
   var dotsLayer         = {dots_name};
   var pinsCasesLayer    = {pins_cases_name};
   var pinsControlsLayer = {pins_controls_name};
+  var stateLabelsLayer    = {state_labels_name};
+  var districtLabelsLayer = {district_labels_name};
 
   // Move legend inside map container so screenshoter captures it
   var legendDiv = document.getElementById('map-legend');
@@ -415,6 +443,19 @@ window.addEventListener('load', function() {{
         }});
     }}, 500);
   }});
+
+  // === Map labels (state / district) — default off ===
+  function applyLabelLogic() {{
+    var showStates    = document.getElementById('toggleStateLabels').checked;
+    var showDistricts = document.getElementById('toggleDistrictLabels').checked;
+    if (showStates) {{ if (!mapObj.hasLayer(stateLabelsLayer)) mapObj.addLayer(stateLabelsLayer); }}
+    else {{ if (mapObj.hasLayer(stateLabelsLayer)) mapObj.removeLayer(stateLabelsLayer); }}
+    if (showDistricts) {{ if (!mapObj.hasLayer(districtLabelsLayer)) mapObj.addLayer(districtLabelsLayer); }}
+    else {{ if (mapObj.hasLayer(districtLabelsLayer)) mapObj.removeLayer(districtLabelsLayer); }}
+  }}
+  document.getElementById('toggleStateLabels').addEventListener('change', applyLabelLogic);
+  document.getElementById('toggleDistrictLabels').addEventListener('change', applyLabelLogic);
+  applyLabelLogic();
 
   applyLayerLogic();
   redrawPins();
