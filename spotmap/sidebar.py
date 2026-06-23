@@ -99,7 +99,7 @@ def build_sidebar_html(
 /* Push leaflet zoom controls below the attached toolbar */
 .leaflet-top {{ top: 58px; }}
 #map-legend {{
-    position: absolute; top: 72px; left: 12px; z-index: 1000; background: #fff;
+    position: absolute; bottom: 26px; left: 12px; z-index: 1000; background: #fff;
     padding: 12px 16px; border-radius: 12px; box-shadow: 0 6px 24px rgba(15,23,42,0.15);
     font-size: 12px; font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
     min-width: 120px; display: none; border: 1px solid var(--sm-border);
