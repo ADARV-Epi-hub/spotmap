@@ -1,4 +1,4 @@
-"""Sidebar HTML/JS/CSS generation."""
+"""Top toolbar HTML/JS/CSS generation (ADARV attached-bar layout)."""
 
 
 def build_sidebar_html(
@@ -26,118 +26,80 @@ def build_sidebar_html(
     --sm-surface: #ffffff;
     --sm-tint: #f8fafc;
 }}
-#sidebar-toggle-btn {{
-    position: fixed; top: 16px; right: 16px; z-index: 10000;
-    width: 44px; height: 44px; background: var(--sm-primary); border-radius: 10px;
-    box-shadow: 0 4px 14px rgba(27,42,94,0.35); display: flex;
-    align-items: center; justify-content: center; cursor: pointer;
-    user-select: none; transition: all 0.18s ease;
-}}
-#sidebar-toggle-btn:hover {{ background: var(--sm-primary-2); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(27,42,94,0.45); }}
-#sidebar-toggle-btn span {{
-    display: block; width: 20px; height: 2.5px;
-    background: #ffffff; margin: 2.5px 0; border-radius: 2px;
-}}
-#map-sidebar {{
-    position: fixed; top: 16px; right: 16px; bottom: 16px; width: 318px;
-    z-index: 9999; background: var(--sm-surface); border-radius: 16px;
-    box-shadow: 0 10px 40px rgba(15,23,42,0.18);
+#sm-toolbar {{
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap;
+    gap: 10px; padding: 10px 16px;
+    background: var(--sm-surface); border-bottom: 1px solid var(--sm-border);
+    box-shadow: 0 2px 10px rgba(15,23,42,0.06);
     font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-    font-size: 13px; color: var(--sm-ink); overflow-y: auto;
-    transform: translateX(118%);
-    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(15,23,42,0.05);
 }}
-#map-sidebar.open {{ transform: translateX(0); }}
-#map-sidebar::-webkit-scrollbar {{ width: 7px; }}
-#map-sidebar::-webkit-scrollbar-thumb {{ background: #cbd5e1; border-radius: 4px; }}
-.sidebar-header {{
-    padding: 20px 20px 18px; position: relative; overflow: hidden;
-    background: linear-gradient(135deg, var(--sm-primary) 0%, var(--sm-primary-2) 100%);
-    border-radius: 16px 16px 0 0; color: #fff;
+.sm-group {{ display: flex; align-items: center; gap: 8px; }}
+.sm-chip-label {{
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+    color: var(--sm-primary); background: #eef2ff; padding: 6px 11px; border-radius: 999px; white-space: nowrap;
 }}
-.sidebar-header::after {{
-    content: ""; position: absolute; top: -40px; right: -40px;
-    width: 130px; height: 130px; border-radius: 50%;
-    background: rgba(255,255,255,0.08);
+.sm-chip-label .dot {{ width: 7px; height: 7px; border-radius: 50%; background: var(--sm-accent); }}
+.sm-dropdown {{ position: relative; }}
+.sm-pill {{
+    display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600;
+    color: var(--sm-ink); background: #fff; border: 1px solid var(--sm-border);
+    padding: 7px 13px; border-radius: 999px; cursor: pointer; white-space: nowrap; transition: all .15s ease;
 }}
-.sidebar-header h2 {{ margin: 0; font-size: 18px; font-weight: 700; letter-spacing: 0.2px; }}
-.stat-row {{
-    margin-top: 16px; display: flex; gap: 8px; position: relative; z-index: 1;
+.sm-pill:hover {{ border-color: var(--sm-accent); color: var(--sm-accent); }}
+.sm-pill .caret {{ font-size: 9px; opacity: .55; }}
+.sm-pill.primary {{ background: var(--sm-primary); color: #fff; border-color: var(--sm-primary); }}
+.sm-pill.primary:hover {{ background: var(--sm-primary-2); color: #fff; }}
+.sm-pill.disabled {{ opacity: .45; pointer-events: none; }}
+.sm-menu {{
+    position: absolute; top: calc(100% + 8px); left: 0; min-width: 215px; background: #fff;
+    border: 1px solid var(--sm-border); border-radius: 12px; box-shadow: 0 10px 30px rgba(15,23,42,0.18);
+    padding: 8px; display: none; z-index: 10001;
 }}
-.stat-card {{
-    flex: 1; background: rgba(255,255,255,0.14); border-radius: 10px;
-    padding: 9px 8px; text-align: center;
-    border: 1px solid rgba(255,255,255,0.18);
+.sm-menu.open {{ display: block; }}
+.sm-dropdown.right .sm-menu {{ left: auto; right: 0; }}
+.sm-menu-title {{
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px;
+    color: var(--sm-muted); padding: 8px 10px 5px;
 }}
-.stat-card b {{ font-size: 18px; font-weight: 700; display: block; line-height: 1.1; }}
-.stat-card span {{ font-size: 9.5px; font-weight: 600; letter-spacing: 0.5px;
-    text-transform: uppercase; opacity: 0.85; display: block; margin-top: 3px; }}
-.sidebar-section {{ padding: 16px 20px; border-bottom: 1px solid var(--sm-border); }}
-.sidebar-section h4 {{
-    margin: 0 0 11px 0; font-size: 10.5px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.9px; color: var(--sm-muted);
-    display: flex; align-items: center; gap: 7px;
+.sm-menu-item {{
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 9px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 500;
+    color: var(--sm-ink); cursor: pointer;
 }}
-.sidebar-section h4::before {{
-    content: ""; width: 3px; height: 12px; border-radius: 2px;
-    background: var(--sm-accent); display: inline-block;
+.sm-menu-item:hover {{ background: var(--sm-tint); }}
+.sm-menu-item.active {{ background: #eef2ff; color: var(--sm-primary); font-weight: 600; }}
+.sm-menu-item.disabled {{ opacity: .4; pointer-events: none; cursor: not-allowed; }}
+.sm-menu-item .check {{ color: var(--sm-accent); font-weight: 700; opacity: 0; }}
+.sm-menu-item.active .check {{ opacity: 1; }}
+.sm-color-row {{
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 10px; font-size: 12.5px; font-weight: 500; color: #334155;
 }}
-.seg-control {{
-    display: flex; background: var(--sm-tint); border-radius: 10px; padding: 4px; gap: 4px;
-    border: 1px solid var(--sm-border);
+.sm-color-row input[type="color"] {{
+    width: 34px; height: 24px; border: 1px solid var(--sm-border); border-radius: 6px;
+    padding: 1px; cursor: pointer; background: #fff;
 }}
-.seg-control label {{
-    flex: 1; text-align: center; border-radius: 7px;
-    cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.15s ease;
+.switch {{ position: relative; display: inline-block; width: 42px; height: 22px; flex: 0 0 auto; }}
+.switch input {{ opacity: 0; width: 0; height: 0; margin: 0; }}
+.slider-toggle {{
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background: #cbd5e1; border-radius: 22px; transition: 0.2s;
 }}
-.seg-control input {{ display: none; }}
-.seg-control input:checked + span {{
-    background: var(--sm-primary); box-shadow: 0 2px 6px rgba(27,42,94,0.28);
-    color: #fff; font-weight: 600;
+.slider-toggle::before {{
+    content: ""; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }}
-.seg-control span {{
-    display: block; padding: 8px 8px; border-radius: 7px;
-    color: var(--sm-muted); transition: all 0.15s ease;
+.switch input:checked + .slider-toggle {{ background: var(--sm-primary); }}
+.switch input:checked + .slider-toggle::before {{ transform: translateX(20px); }}
+.toggle-state {{
+    font-size: 11px; font-weight: 700; color: var(--sm-muted);
+    text-transform: uppercase; letter-spacing: 0.5px; min-width: 22px;
 }}
-.seg-control label:hover span {{ color: var(--sm-ink); }}
-.swatch-row {{
-    display: flex; gap: 10px; align-items: center; margin: 8px 0;
-    padding: 8px 10px; background: var(--sm-tint); border-radius: 9px;
-    border: 1px solid var(--sm-border);
-}}
-.swatch-row label {{ flex: 1; font-size: 12.5px; font-weight: 500; color: #334155; }}
-.swatch-row input[type="color"] {{
-    width: 42px; height: 30px; border: 1px solid var(--sm-border); border-radius: 7px;
-    cursor: pointer; padding: 2px; background: #fff;
-}}
-input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px; }}
-.slider-row {{
-    display: flex; align-items: center; gap: 12px;
-    padding: 6px 10px; background: var(--sm-tint); border-radius: 9px;
-    border: 1px solid var(--sm-border);
-}}
-.slider-value {{
-    min-width: 38px; font-size: 12.5px; font-weight: 700; color: var(--sm-accent);
-    text-align: right;
-}}
-.btn {{
-    display: block; width: 100%; padding: 11px 12px; margin: 8px 0 0;
-    background: var(--sm-primary); color: #fff; border: none; border-radius: 9px;
-    cursor: pointer; font-size: 12.5px; font-weight: 600; text-align: center;
-    text-decoration: none; transition: all 0.16s ease; letter-spacing: 0.2px;
-}}
-.btn:hover {{ background: var(--sm-primary-2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,42,94,0.25); }}
-.btn.secondary {{ background: #fff; color: var(--sm-primary); border: 1.5px solid var(--sm-border); }}
-.btn.secondary:hover {{ background: var(--sm-tint); border-color: var(--sm-accent); color: var(--sm-accent); }}
-.sidebar-foot {{
-    padding: 13px 20px; text-align: center; font-size: 10px; color: #94a3b8;
-    letter-spacing: 0.3px; background: var(--sm-tint); border-radius: 0 0 16px 16px;
-}}
-.spot-filter {{ display: none; margin-top: 12px; }}
-.spot-filter.show {{ display: block; }}
+/* Push leaflet zoom controls below the attached toolbar */
+.leaflet-top {{ top: 58px; }}
 #map-legend {{
-    position: absolute; top: 16px; left: 60px; z-index: 1000; background: #fff;
+    position: absolute; top: 72px; left: 12px; z-index: 1000; background: #fff;
     padding: 12px 16px; border-radius: 12px; box-shadow: 0 6px 24px rgba(15,23,42,0.15);
     font-size: 12px; font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
     min-width: 120px; display: none; border: 1px solid var(--sm-border);
@@ -154,28 +116,6 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
     width: 15px; height: 15px; border-radius: 50%;
     margin-right: 10px; border: 1px solid rgba(0,0,0,0.12);
 }}
-.toggle-row {{
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 10px 12px; margin: 6px 0;
-    background: var(--sm-tint); border-radius: 9px; border: 1px solid var(--sm-border);
-    font-size: 12.5px; font-weight: 500; color: #334155;
-}}
-.toggle-state {{
-    font-size: 11px; font-weight: 700; color: var(--sm-muted);
-    text-transform: uppercase; letter-spacing: 0.5px; min-width: 22px; text-align: right;
-}}
-.switch {{ position: relative; display: inline-block; width: 42px; height: 22px; flex: 0 0 auto; }}
-.switch input {{ opacity: 0; width: 0; height: 0; margin: 0; }}
-.slider-toggle {{
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background: #cbd5e1; border-radius: 22px; transition: 0.2s;
-}}
-.slider-toggle::before {{
-    content: ""; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px;
-    background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}}
-.switch input:checked + .slider-toggle {{ background: var(--sm-primary); }}
-.switch input:checked + .slider-toggle::before {{ transform: translateX(20px); }}
 #map-credit {{
     position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
     z-index: 1000; background: rgba(255,255,255,0.92); color: var(--sm-primary);
@@ -191,7 +131,8 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
         color-adjust: exact !important;
     }}
     html, body {{ background: #fff !important; }}
-    #map-sidebar, #sidebar-toggle-btn {{ display: none !important; }}
+    #sm-toolbar {{ display: none !important; }}
+    .leaflet-top {{ top: 0 !important; }}
     #map-legend {{
         display: block !important; position: absolute; top: 10px; left: 10px;
         background: #fff !important; border: 1px solid #ccc;
@@ -201,10 +142,6 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
     .cluster-icon > div, .marker-cluster div {{ box-shadow: none !important; }}
 }}
 </style>
-
-<div id="sidebar-toggle-btn" title="Map options">
-  <div><span></span><span></span><span></span></div>
-</div>
 
 <div id="map-credit">Interactive spot maps for India &middot; created by ADARV</div>
 
@@ -220,89 +157,65 @@ input[type="range"] {{ width: 100%; accent-color: var(--sm-accent); height: 5px;
     </div>
 </div>
 
-<div id="map-sidebar">
-  <div class="sidebar-header">
-    <h2>SpotMap</h2>
-    <div class="stat-row">
-      <div class="stat-card"><b>{n_cases}</b><span>Cases</span></div>
-      <div class="stat-card"><b>{n_controls}</b><span>Controls</span></div>
-      <div class="stat-card"><b>{mode}</b><span>Zoom</span></div>
-    </div>
-  </div>
-
-  <div class="sidebar-section">
-    <h4>Display Mode</h4>
-    <div class="seg-control">
-      <label>
-        <input type="radio" name="markerMode" value="dots" checked>
-        <span>Dot Density</span>
-      </label>
-      <label>
-        <input type="radio" name="markerMode" value="pins">
-        <span>Spot Pins</span>
-      </label>
-    </div>
-    <div class="spot-filter" id="spotFilterBox">
-      <h4 style="margin-top:12px;">Show</h4>
-      <div class="seg-control">
-        <label>
-          <input type="radio" name="spotFilterMode" value="cases" checked>
-          <span>Cases Only</span>
-        </label>
-        <label>
-          <input type="radio" name="spotFilterMode" value="both">
-          <span>Cases &amp; Controls</span>
-        </label>
+<div id="sm-toolbar">
+  <div class="sm-group">
+    <span class="sm-chip-label"><span class="dot"></span>Pin Size</span>
+    <div class="sm-dropdown" id="dd-pinsize">
+      <button class="sm-pill" id="pinsizeBtn"><span id="pinsizeLabel">75% (Recommended)</span> <span class="caret">&#9660;</span></button>
+      <div class="sm-menu" id="pinsizeMenu">
+        <div class="sm-menu-title">Pin Size</div>
+        <div class="sm-menu-item" data-pct="50"><span>50%</span><span class="check">&#10003;</span></div>
+        <div class="sm-menu-item" data-pct="75"><span>75% (Recommended)</span><span class="check">&#10003;</span></div>
+        <div class="sm-menu-item" data-pct="100"><span>100%</span><span class="check">&#10003;</span></div>
+        <div class="sm-menu-item" data-pct="150"><span>150%</span><span class="check">&#10003;</span></div>
+        <div class="sm-menu-item" data-pct="200"><span>200%</span><span class="check">&#10003;</span></div>
       </div>
     </div>
   </div>
 
-  <div class="sidebar-section" id="clusterColorSection">
-    <h4>Cluster Colour</h4>
-    <div class="swatch-row">
-      <label>Pick a colour</label>
-      <input type="color" id="clusterCustomColor" value="{cluster_color}">
+  <div class="sm-group">
+    <span class="sm-chip-label"><span class="dot"></span>Category</span>
+    <div class="sm-dropdown" id="dd-category">
+      <button class="sm-pill" id="categoryBtn"><span id="categoryLabel">Only Cases</span> <span class="caret">&#9660;</span></button>
+      <div class="sm-menu" id="categoryMenu">
+        <div class="sm-menu-title">Spot Map Filter</div>
+        <div class="sm-menu-item" data-filter="cases"><span>Only Cases</span><span class="check">&#10003;</span></div>
+        <div class="sm-menu-item" data-filter="both"><span>Case &amp; Control</span><span class="check">&#10003;</span></div>
+        <div class="sm-menu-title">Colours</div>
+        <div class="sm-color-row" id="row-case"><span>Case</span><input type="color" id="caseColorPicker" value="{case_color}"></div>
+        <div class="sm-color-row" id="row-control"><span>Control</span><input type="color" id="controlColorPicker" value="{control_color}"></div>
+        <div class="sm-color-row" id="row-cluster"><span>Cluster</span><input type="color" id="clusterCustomColor" value="{cluster_color}"></div>
+      </div>
     </div>
   </div>
 
-  <div class="sidebar-section" id="pinColorSection" style="display:none;">
-    <h4>Pin Colours</h4>
-    <div class="swatch-row">
-      <label>Cases</label>
-      <input type="color" id="caseColorPicker" value="{case_color}">
-    </div>
-    <div class="swatch-row">
-      <label>Controls</label>
-      <input type="color" id="controlColorPicker" value="{control_color}">
-    </div>
-    <h4 style="margin-top:14px;">Pin Size</h4>
-    <div class="slider-row">
-      <input type="range" id="pinSizeSlider" min="0.5" max="2.0" step="0.1" value="1.0">
-      <span class="slider-value" id="pinSizeValue">1.0x</span>
+  <div class="sm-group">
+    <span class="sm-chip-label"><span class="dot"></span>Map Type</span>
+    <div class="sm-dropdown" id="dd-maptype">
+      <button class="sm-pill" id="maptypeBtn"><span id="maptypeLabel">Dot Density</span> <span class="caret">&#9660;</span></button>
+      <div class="sm-menu" id="maptypeMenu">
+        <div class="sm-menu-title">Map Type</div>
+        <div class="sm-menu-item" data-mode="pins"><span>Spot Map (Pins)</span><span class="check">&#10003;</span></div>
+        <div class="sm-menu-item" data-mode="dots"><span>Dot Density (Cluster)</span><span class="check">&#10003;</span></div>
+      </div>
     </div>
   </div>
 
-  <div class="sidebar-section">
-    <h4>Map Labels</h4>
-    <div class="toggle-row">
-      <span>Place names</span>
-      <span style="display:flex; align-items:center; gap:9px;">
-        <span class="toggle-state" id="labelsState">Off</span>
-        <label class="switch">
-          <input type="checkbox" id="toggleLabels">
-          <span class="slider-toggle"></span>
-        </label>
-      </span>
+  <div class="sm-group">
+    <span class="sm-chip-label"><span class="dot"></span>Labels</span>
+    <label class="switch"><input type="checkbox" id="toggleLabels"><span class="slider-toggle"></span></label>
+    <span class="toggle-state" id="labelsState">Off</span>
+  </div>
+
+  <button class="sm-pill" id="recenterBtn">&#8635; Recenter</button>
+
+  <div class="sm-dropdown right" id="dd-download">
+    <button class="sm-pill primary" id="downloadBtn">Download <span class="caret">&#9660;</span></button>
+    <div class="sm-menu" id="downloadMenu">
+      <div class="sm-menu-item" id="downloadPngLink"><span>PNG image</span></div>
+      <div class="sm-menu-item" id="downloadPrintLink"><span>Print / Save PDF</span></div>
     </div>
   </div>
-
-  <div class="sidebar-section">
-    <h4>Export Map</h4>
-    <a class="btn" id="downloadPngLink">Download PNG</a>
-    <a class="btn secondary" id="downloadPrintLink">Print / Save PDF</a>
-  </div>
-
-  <div class="sidebar-foot">Interactive spot maps for India &middot; created by ADARV</div>
 </div>
 
 <script src="https://unpkg.com/leaflet-simple-map-screenshoter"></script>
@@ -312,45 +225,39 @@ window.addEventListener('load', function() {{
   var dotsLayer         = {dots_name};
   var pinsCasesLayer    = {pins_cases_name};
   var pinsControlsLayer = {pins_controls_name};
-  var labelsLayer = {labels_name};
+  var labelsLayer       = {labels_name};
 
-  // Move legend inside map container so screenshoter captures it
-  var legendDiv = document.getElementById('map-legend');
-  mapObj.getContainer().appendChild(legendDiv);
+  function byId(id) {{ return document.getElementById(id); }}
 
-  // Move the ADARV credit caption inside the map container too
-  var creditDiv = document.getElementById('map-credit');
+  var legendDiv = byId('map-legend');
+  if (legendDiv) mapObj.getContainer().appendChild(legendDiv);
+  var creditDiv = byId('map-credit');
   if (creditDiv) mapObj.getContainer().appendChild(creditDiv);
 
-  var simpleMapScreenshoter = L.simpleMapScreenshoter({{
-      hidden: true,
-      mimeType: 'image/png'
-  }}).addTo(mapObj);
+  var simpleMapScreenshoter = L.simpleMapScreenshoter({{ hidden: true, mimeType: 'image/png' }}).addTo(mapObj);
 
-  var sidebar = document.getElementById('map-sidebar');
-  var toggleBtn = document.getElementById('sidebar-toggle-btn');
-  var sidebarOpen = true;
-  sidebar.classList.add('open');
+  var initCenter = mapObj.getCenter();
+  var initZoom   = mapObj.getZoom();
 
-  toggleBtn.addEventListener('click', function() {{
-    sidebarOpen = !sidebarOpen;
-    sidebar.classList.toggle('open', sidebarOpen);
-  }});
-
-  window.caseColor    = '{case_color}';
-  window.controlColor = '{control_color}';
+  window.caseColor        = '{case_color}';
+  window.controlColor     = '{control_color}';
   window.clusterBaseColor = '{cluster_color}';
-  window.pinScale = 1.0;
+  window.pinScale         = 0.75;
+
+  // Dot density only makes sense for cases, so it is disabled when the
+  // user shows Case & Control.
+  var state = {{ mode: 'dots', filter: 'cases', pinPct: 75 }};
+
+  function pinLabel(pct) {{ return pct === 75 ? '75% (Recommended)' : (pct + '%'); }}
 
   function updateLegend() {{
-    var legendBox = document.getElementById('map-legend');
-    var isPins = document.querySelector('input[name="markerMode"]:checked').value === 'pins';
-    legendBox.style.display = isPins ? 'block' : 'none';
+    var box = byId('map-legend');
+    var isPins = state.mode === 'pins';
+    box.style.display = isPins ? 'block' : 'none';
     if (!isPins) return;
-    document.getElementById('legend-icon-case').style.backgroundColor = window.caseColor;
-    document.getElementById('legend-icon-control').style.backgroundColor = window.controlColor;
-    var isBoth = document.querySelector('input[name="spotFilterMode"]:checked').value === 'both';
-    document.getElementById('legend-control-item').style.display = isBoth ? 'flex' : 'none';
+    byId('legend-icon-case').style.backgroundColor = window.caseColor;
+    byId('legend-icon-control').style.backgroundColor = window.controlColor;
+    byId('legend-control-item').style.display = state.filter === 'both' ? 'flex' : 'none';
   }}
 
   function makePinIcon(colorHex) {{
@@ -365,93 +272,131 @@ window.addEventListener('load', function() {{
   }}
 
   function redrawPins() {{
-    if (pinsCasesLayer) {{
-      pinsCasesLayer.eachLayer(function(marker) {{
-        if (marker.setIcon) marker.setIcon(makePinIcon(window.caseColor));
-      }});
-    }}
-    if (pinsControlsLayer) {{
-      pinsControlsLayer.eachLayer(function(marker) {{
-        if (marker.setIcon) marker.setIcon(makePinIcon(window.controlColor));
-      }});
-    }}
+    if (pinsCasesLayer) pinsCasesLayer.eachLayer(function(m) {{ if (m.setIcon) m.setIcon(makePinIcon(window.caseColor)); }});
+    if (pinsControlsLayer) pinsControlsLayer.eachLayer(function(m) {{ if (m.setIcon) m.setIcon(makePinIcon(window.controlColor)); }});
     updateLegend();
   }}
 
   function refreshClusters() {{
-    // Use the proper Leaflet.markercluster API to force redraw
     if (dotsLayer && typeof dotsLayer.refreshClusters === 'function') {{
       dotsLayer.refreshClusters();
     }} else if (mapObj.hasLayer(dotsLayer)) {{
-      // Fallback for older versions: full remove + re-add
-      mapObj.removeLayer(dotsLayer);
-      mapObj.addLayer(dotsLayer);
+      mapObj.removeLayer(dotsLayer); mapObj.addLayer(dotsLayer);
     }}
   }}
 
+  function syncMenus() {{
+    document.querySelectorAll('#maptypeMenu .sm-menu-item').forEach(function(it) {{
+      it.classList.toggle('active', it.getAttribute('data-mode') === state.mode);
+    }});
+    byId('maptypeLabel').textContent = state.mode === 'pins' ? 'Spot Map (Pins)' : 'Dot Density';
+
+    document.querySelectorAll('#categoryMenu .sm-menu-item').forEach(function(it) {{
+      it.classList.toggle('active', it.getAttribute('data-filter') === state.filter);
+    }});
+    byId('categoryLabel').textContent = state.filter === 'both' ? 'Case & Control' : 'Only Cases';
+
+    // Dot Density is only valid for "Only Cases" -> grey it out for both
+    var dotsItem = document.querySelector('#maptypeMenu .sm-menu-item[data-mode="dots"]');
+    if (dotsItem) dotsItem.classList.toggle('disabled', state.filter === 'both');
+
+    document.querySelectorAll('#pinsizeMenu .sm-menu-item').forEach(function(it) {{
+      it.classList.toggle('active', parseInt(it.getAttribute('data-pct'), 10) === state.pinPct);
+    }});
+    byId('pinsizeLabel').textContent = pinLabel(state.pinPct);
+    // Pin size only applies to pins mode
+    byId('pinsizeBtn').classList.toggle('disabled', state.mode !== 'pins');
+
+    byId('row-case').style.display    = state.mode === 'pins' ? 'flex' : 'none';
+    byId('row-control').style.display = (state.mode === 'pins' && state.filter === 'both') ? 'flex' : 'none';
+    byId('row-cluster').style.display = state.mode === 'dots' ? 'flex' : 'none';
+  }}
+
   function applyLayerLogic() {{
-    var mode = document.querySelector('input[name="markerMode"]:checked').value;
-    var filter = document.querySelector('input[name="spotFilterMode"]:checked').value;
-
-    // Show/hide UI sections based on mode
-    document.getElementById('spotFilterBox').classList.toggle('show', mode === 'pins');
-    document.getElementById('clusterColorSection').style.display = mode === 'dots' ? 'block' : 'none';
-    document.getElementById('pinColorSection').style.display = mode === 'pins' ? 'block' : 'none';
-
-    if (mode === 'dots') {{
+    if (state.mode === 'dots') {{
       if (!mapObj.hasLayer(dotsLayer)) mapObj.addLayer(dotsLayer);
       if (mapObj.hasLayer(pinsCasesLayer)) mapObj.removeLayer(pinsCasesLayer);
       if (mapObj.hasLayer(pinsControlsLayer)) mapObj.removeLayer(pinsControlsLayer);
     }} else {{
       if (mapObj.hasLayer(dotsLayer)) mapObj.removeLayer(dotsLayer);
       if (!mapObj.hasLayer(pinsCasesLayer)) mapObj.addLayer(pinsCasesLayer);
-      if (filter === 'both') {{
+      if (state.filter === 'both') {{
         if (!mapObj.hasLayer(pinsControlsLayer)) mapObj.addLayer(pinsControlsLayer);
       }} else {{
         if (mapObj.hasLayer(pinsControlsLayer)) mapObj.removeLayer(pinsControlsLayer);
       }}
       redrawPins();
     }}
+    syncMenus();
     updateLegend();
   }}
 
-  document.querySelectorAll('input[type=radio]').forEach(function(r) {{
-    r.addEventListener('change', applyLayerLogic);
-  }});
-
-  // === Cluster colour — live update on every change ===
-  var custClust = document.getElementById('clusterCustomColor');
-  if (custClust) {{
-    custClust.addEventListener('input', function() {{
-      window.clusterBaseColor = custClust.value;
-      refreshClusters();
-    }});
+  function closeAllMenus(except) {{
+    document.querySelectorAll('.sm-menu').forEach(function(m) {{ if (m !== except) m.classList.remove('open'); }});
   }}
+  function wireDropdown(btnId, menuId) {{
+    var b = byId(btnId), m = byId(menuId);
+    if (!b || !m) return;
+    b.addEventListener('click', function(e) {{
+      e.stopPropagation();
+      if (b.classList.contains('disabled')) return;
+      var isOpen = m.classList.contains('open');
+      closeAllMenus();
+      if (!isOpen) m.classList.add('open');
+    }});
+    m.addEventListener('click', function(e) {{ e.stopPropagation(); }});
+  }}
+  document.addEventListener('click', function() {{ closeAllMenus(); }});
+  wireDropdown('pinsizeBtn', 'pinsizeMenu');
+  wireDropdown('categoryBtn', 'categoryMenu');
+  wireDropdown('maptypeBtn', 'maptypeMenu');
+  wireDropdown('downloadBtn', 'downloadMenu');
 
-  // === Pin colours — live update (no Apply button needed) ===
-  document.getElementById('caseColorPicker').addEventListener('input', function(e) {{
-    window.caseColor = e.target.value;
-    redrawPins();
+  document.querySelectorAll('#maptypeMenu .sm-menu-item').forEach(function(it) {{
+    it.addEventListener('click', function() {{
+      if (it.classList.contains('disabled')) return;
+      state.mode = it.getAttribute('data-mode');
+      closeAllMenus();
+      applyLayerLogic();
+    }});
   }});
-  document.getElementById('controlColorPicker').addEventListener('input', function(e) {{
-    window.controlColor = e.target.value;
-    redrawPins();
+  document.querySelectorAll('#categoryMenu .sm-menu-item').forEach(function(it) {{
+    it.addEventListener('click', function() {{
+      state.filter = it.getAttribute('data-filter');
+      // Dot density can't show controls -> fall back to pins
+      if (state.filter === 'both' && state.mode === 'dots') state.mode = 'pins';
+      applyLayerLogic();
+    }});
+  }});
+  document.querySelectorAll('#pinsizeMenu .sm-menu-item').forEach(function(it) {{
+    it.addEventListener('click', function() {{
+      state.pinPct = parseInt(it.getAttribute('data-pct'), 10);
+      window.pinScale = state.pinPct / 100;
+      closeAllMenus();
+      redrawPins();
+      syncMenus();
+    }});
   }});
 
-  // === Pin size ===
-  var sizeSlider = document.getElementById('pinSizeSlider');
-  var sizeValue = document.getElementById('pinSizeValue');
-  sizeSlider.addEventListener('input', function(e) {{
-    window.pinScale = parseFloat(e.target.value);
-    sizeValue.textContent = window.pinScale.toFixed(1) + 'x';
-    redrawPins();
-  }});
+  byId('clusterCustomColor').addEventListener('input', function(e) {{ window.clusterBaseColor = e.target.value; refreshClusters(); }});
+  byId('caseColorPicker').addEventListener('input', function(e) {{ window.caseColor = e.target.value; redrawPins(); }});
+  byId('controlColorPicker').addEventListener('input', function(e) {{ window.controlColor = e.target.value; redrawPins(); }});
 
-  // === Export ===
-  document.getElementById('downloadPrintLink').addEventListener('click', function() {{ window.print(); }});
-  document.getElementById('downloadPngLink').addEventListener('click', function() {{
-    sidebar.classList.remove('open');
-    sidebarOpen = false;
+  function applyLabelLogic() {{
+    var show = byId('toggleLabels').checked;
+    if (show) {{ if (!mapObj.hasLayer(labelsLayer)) mapObj.addLayer(labelsLayer); }}
+    else {{ if (mapObj.hasLayer(labelsLayer)) mapObj.removeLayer(labelsLayer); }}
+    byId('labelsState').textContent = show ? 'On' : 'Off';
+  }}
+  byId('toggleLabels').addEventListener('change', applyLabelLogic);
+
+  byId('recenterBtn').addEventListener('click', function() {{ mapObj.setView(initCenter, initZoom); }});
+
+  byId('downloadPrintLink').addEventListener('click', function() {{ closeAllMenus(); window.print(); }});
+  byId('downloadPngLink').addEventListener('click', function() {{
+    closeAllMenus();
+    var tb = byId('sm-toolbar');
+    tb.style.display = 'none';
     setTimeout(function() {{
       simpleMapScreenshoter.takeScreen('blob', {{ caption: function() {{ return ''; }} }})
         .then(function(blob) {{
@@ -461,23 +406,11 @@ window.addEventListener('load', function() {{
           link.click();
         }})
         .catch(function(e) {{ alert(e); }})
-        .finally(function() {{
-          sidebar.classList.add('open');
-          sidebarOpen = true;
-        }});
-    }}, 500);
+        .finally(function() {{ tb.style.display = 'flex'; }});
+    }}, 400);
   }});
 
-  // === OpenStreetMap place labels — default off ===
-  function applyLabelLogic() {{
-    var show = document.getElementById('toggleLabels').checked;
-    if (show) {{ if (!mapObj.hasLayer(labelsLayer)) mapObj.addLayer(labelsLayer); }}
-    else {{ if (mapObj.hasLayer(labelsLayer)) mapObj.removeLayer(labelsLayer); }}
-    document.getElementById('labelsState').textContent = show ? 'On' : 'Off';
-  }}
-  document.getElementById('toggleLabels').addEventListener('change', applyLabelLogic);
   applyLabelLogic();
-
   applyLayerLogic();
   redrawPins();
 }});
