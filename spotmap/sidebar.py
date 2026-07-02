@@ -161,7 +161,7 @@ def build_sidebar_html(
   <div class="sm-group">
     <span class="sm-chip-label"><span class="dot"></span>Pin Size</span>
     <div class="sm-dropdown" id="dd-pinsize">
-      <button class="sm-pill" id="pinsizeBtn"><span id="pinsizeLabel">75% (Recommended)</span> <span class="caret">&#9660;</span></button>
+      <button class="sm-pill" id="pinsizeBtn" title="How big the map pins appear"><span id="pinsizeLabel">75% (Recommended)</span> <span class="caret">&#9660;</span></button>
       <div class="sm-menu" id="pinsizeMenu">
         <div class="sm-menu-title">Pin Size</div>
         <div class="sm-menu-item" data-pct="50"><span>50%</span><span class="check">&#10003;</span></div>
@@ -176,7 +176,7 @@ def build_sidebar_html(
   <div class="sm-group">
     <span class="sm-chip-label"><span class="dot"></span>Category</span>
     <div class="sm-dropdown" id="dd-category">
-      <button class="sm-pill" id="categoryBtn"><span id="categoryLabel">Only Cases</span> <span class="caret">&#9660;</span></button>
+      <button class="sm-pill" id="categoryBtn" title="Show only cases, or cases and controls together (and pick their colours)"><span id="categoryLabel">Only Cases</span> <span class="caret">&#9660;</span></button>
       <div class="sm-menu" id="categoryMenu">
         <div class="sm-menu-title">Spot Map Filter</div>
         <div class="sm-menu-item" data-filter="cases"><span>Only Cases</span><span class="check">&#10003;</span></div>
@@ -192,7 +192,7 @@ def build_sidebar_html(
   <div class="sm-group">
     <span class="sm-chip-label"><span class="dot"></span>Map Type</span>
     <div class="sm-dropdown" id="dd-maptype">
-      <button class="sm-pill" id="maptypeBtn"><span id="maptypeLabel">Dot Density</span> <span class="caret">&#9660;</span></button>
+      <button class="sm-pill" id="maptypeBtn" title="Dot Density groups nearby cases into clusters; Spot Pins shows every point"><span id="maptypeLabel">Dot Density</span> <span class="caret">&#9660;</span></button>
       <div class="sm-menu" id="maptypeMenu">
         <div class="sm-menu-title">Map Type</div>
         <div class="sm-menu-item" data-mode="pins"><span>Spot Map (Pins)</span><span class="check">&#10003;</span></div>
@@ -202,15 +202,15 @@ def build_sidebar_html(
   </div>
 
   <div class="sm-group">
-    <span class="sm-chip-label"><span class="dot"></span>Labels</span>
-    <label class="switch"><input type="checkbox" id="toggleLabels"><span class="slider-toggle"></span></label>
+    <span class="sm-chip-label" title="Show or hide place names (states, districts, towns) from OpenStreetMap"><span class="dot"></span>Labels</span>
+    <label class="switch" title="Show or hide place names from OpenStreetMap"><input type="checkbox" id="toggleLabels"><span class="slider-toggle"></span></label>
     <span class="toggle-state" id="labelsState">Off</span>
   </div>
 
-  <button class="sm-pill" id="recenterBtn">&#8635; Recenter</button>
+  <button class="sm-pill" id="recenterBtn" title="Reset the map to the starting view">&#8635; Recenter</button>
 
   <div class="sm-dropdown right" id="dd-download">
-    <button class="sm-pill primary" id="downloadBtn">Download <span class="caret">&#9660;</span></button>
+    <button class="sm-pill primary" id="downloadBtn" title="Save the map as a PNG image, or print / save as PDF">Download <span class="caret">&#9660;</span></button>
     <div class="sm-menu" id="downloadMenu">
       <div class="sm-menu-item" id="downloadPngLink"><span>PNG image</span></div>
       <div class="sm-menu-item" id="downloadPrintLink"><span>Print / Save PDF</span></div>

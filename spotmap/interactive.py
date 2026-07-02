@@ -510,10 +510,11 @@ def spotmap_run(output_path: str = _DEFAULT_OUTPUT) -> None:
     """
     print()
     _line("═")
-    print("   🗺️  Welcome to SpotMap")
-    print("   We'll guide you through 5 quick steps to build your map.")
+    print("   🗺️  Welcome to SpotMap  (by ADARV)")
+    print("   Let's turn your data into an interactive map — no coding needed.")
+    print("   Just answer a few quick questions below.")
     _line("═")
-    print("Tip: press Enter to accept the suggested answer in [brackets].\n")
+    print("Tip: not sure about an answer? Press Enter to accept the suggestion in [brackets].\n")
 
     # Step 1 — load file
     df = _step_load_csv()
@@ -552,7 +553,7 @@ def spotmap_run(output_path: str = _DEFAULT_OUTPUT) -> None:
     if _in_notebook():
         # In Colab/Jupyter, show the map right in the output cell so the user
         # doesn't have to hunt for an HTML file they can't open.
-        print("\n🗺️  Here's your map:\n")
+        print("\n✅  All done! Here's your map:\n")
         try:
             from IPython.display import display
             display(sm.map)
@@ -561,7 +562,7 @@ def spotmap_run(output_path: str = _DEFAULT_OUTPUT) -> None:
         if _in_colab():
             _info(f"A copy was also saved as '{output_path}' (Files panel on the left).")
     else:
-        print(f"\n🗺️  Open this file in your browser:\n   {os.path.abspath(output_path)}\n")
+        print(f"\n✅  All done! Your map is ready — open this file in your browser:\n   {os.path.abspath(output_path)}\n")
     _line()
 
 
