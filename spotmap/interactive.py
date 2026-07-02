@@ -291,24 +291,24 @@ def _step_pick_columns(df: pd.DataFrame):
     previews = _build_previews(df)
 
     print("\n" + "─" * 55)
-    print("📍 Step 2 — Which column holds the LATITUDE?")
-    print("   (Latitude is the North-South number, e.g. 28.61 for Delhi)")
+    print("📍 Step 2 — Which column has the latitude?")
+    print("   (The north-south number, e.g. 28.61 for Delhi)")
     print("─" * 55)
     lat_col = _ask_choice("Your latitude column", cols, _guess(cols, _LAT_NAMES), previews)
 
     print("\n" + "─" * 55)
-    print("📍 Step 3 — Which column holds the LONGITUDE?")
-    print("   (Longitude is the East-West number, e.g. 77.20 for Delhi)")
+    print("📍 Step 3 — Which column has the longitude?")
+    print("   (The east-west number, e.g. 77.20 for Delhi)")
     print("─" * 55)
     long_col = _ask_choice("Your longitude column", cols, _guess(cols, _LONG_NAMES), previews)
 
     print("\n" + "─" * 55)
-    print("🏥 Step 4 — Which column tells us CASE vs CONTROL?")
-    print("   (e.g. a column with values like 'case'/'control' or '1'/'0')")
-    print("   If your data only has cases and no control group, pick the")
-    print("   first option to treat every row as a case.")
+    print("🏥 Step 4 — Which column says whether each row is a case or a control?")
+    print("   (e.g. values like 'case'/'control' or '1'/'0')")
+    print("   If your data is all cases with no control group, pick the")
+    print("   first option below.")
     print("─" * 55)
-    no_outcome_label = "(No outcome column - treat all rows as cases)"
+    no_outcome_label = "My data is all cases (no control group)"
     cols_with_none = [no_outcome_label] + cols
     previews_with_none = ["All rows treated as cases"] + previews
     outcome_choice = _ask_choice(
@@ -378,8 +378,8 @@ def _step_pick_case_value(df: pd.DataFrame, outcome_col: str) -> str:
 
     # Show values WITH counts
     print("\n" + "─" * 55)
-    print(f"🎯 Step 5 — Which value in '{outcome_col}' means a CASE?")
-    print("   (We treat that value as cases, everything else as controls)")
+    print(f"🎯 Step 5 — In '{outcome_col}', which value marks a case?")
+    print("   (Everything else is treated as a control)")
     print("─" * 55)
     print(f"\nHere's what we found in '{outcome_col}':\n")
     for i, v in enumerate(values, 1):
