@@ -24,13 +24,14 @@ pip install spotmap
 
 ### Interactive (no coding required)
 
-The easiest way — works great in **Google Colab** or a Jupyter notebook. Paste
-these two lines into a cell and run it:
+The easiest way — works great in **Google Colab** or a Jupyter notebook.
+Install it, then run these two lines:
 
 ```python
 !pip install spotmap
-from spotmap import spotmap_run
-spotmap_run()
+
+import spotmap
+spotmap.run()
 ```
 
 SpotMap then walks you through a few simple prompts:

@@ -4,9 +4,13 @@ from .exceptions import ColumnNotFoundError, NoCasePointsError, SpotMapError
 from .interactive import run_interactive, spotmap_run
 from .map_builder import SpotMap
 
-__version__ = "0.1.29"
+# Short, friendly alias so non-coders can simply do:  import spotmap; spotmap.run()
+run = spotmap_run
+
+__version__ = "0.1.31"
 __all__ = [
     "SpotMap",
+    "run",  # friendly alias for spotmap_run
     "spotmap_run",
     "run_interactive",  # deprecated alias, kept for backward compat
     "SpotMapError",
@@ -15,15 +19,15 @@ __all__ = [
 ]
 
 # Friendly welcome shown when the package is imported, to help first-time
-# (non-coder) users know how to launch the tool.
+# (non-coder) users know how to launch the tool.  At this point `import spotmap`
+# has already run, so we only need to tell them the one next line.
 print(
     f"\n"
     f"SpotMap by ADARV  -  turn your case data into an interactive map of India (no coding needed).\n"
     f"\n"
-    f"  Get started - copy these two lines and run them:\n"
+    f"  Ready! To build your map, run this line:\n"
     f"\n"
-    f"      from spotmap import spotmap_run\n"
-    f"      spotmap_run()\n"
+    f"      spotmap.run()\n"
     f"\n"
     f"  You'll be asked to choose your data file, then your map appears right away.\n"
 )
