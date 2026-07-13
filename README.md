@@ -12,21 +12,6 @@ SpotMap turns a CSV of case/control coordinates into a publication-ready interac
 
 ---
 
-## 🗺️ Run it in your browser — no install, no coding
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ADARV-Epi-hub/spotmap/blob/main/notebooks/spotmap_colab.ipynb)
-
-**Easiest way for non-coders.** Click the badge above — it opens a ready-made
-Google Colab notebook. Then:
-
-1. Press the **▶ play button** on the cell.
-2. Click **Choose Files** and pick your data file (CSV or Excel).
-3. Answer the short questions — your map appears right there.
-
-Nothing to install and no code to write.
-
----
-
 ## Installation
 
 ```bash
