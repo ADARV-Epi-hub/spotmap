@@ -7,7 +7,7 @@ from .map_builder import SpotMap
 # Short, friendly alias so non-coders can simply do:  import spotmap; spotmap.run()
 run = spotmap_run
 
-__version__ = "0.1.32"
+__version__ = "0.1.33"
 __all__ = [
     "SpotMap",
     "run",  # friendly alias for spotmap_run
@@ -23,11 +23,11 @@ __all__ = [
 # has already run, so we only need to tell them the one next line.
 print(
     f"\n"
-    f"Interactive SpotMap for India  -  created by ADARV\n"
+    f"Interactive SpotMap for India - created by ADARV\n"
     f"\n"
-    f"  No code required! To build your map, just run:\n"
+    f"No code required! To build your map, just run:\n"
     f"\n"
-    f"      spotmap.run()\n"
+    f"spotmap.run()\n"
     f"\n"
-    f"  You'll be asked to choose your data file, then your map appears.\n"
+    f"You'll be asked to choose your data file, then your map appears.\n"
 )
